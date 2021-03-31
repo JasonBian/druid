@@ -15,14 +15,11 @@
  */
 package com.alibaba.druid.sql.ast.statement;
 
+import com.alibaba.druid.sql.ast.*;
+import com.alibaba.druid.sql.visitor.SQLASTVisitor;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.alibaba.druid.sql.ast.*;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerObjectImpl;
-import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerStatement;
-import com.alibaba.druid.sql.dialect.sqlserver.visitor.SQLServerASTVisitor;
-import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
 public class SQLDeclareStatement extends SQLStatementImpl {
 
@@ -32,11 +29,11 @@ public class SQLDeclareStatement extends SQLStatementImpl {
 
     }
 
-    public SQLDeclareStatement(SQLExpr name, SQLDataType dataType) {
+    public SQLDeclareStatement(SQLName name, SQLDataType dataType) {
         this.addItem(new SQLDeclareItem(name, dataType));
     }
 
-    public SQLDeclareStatement(SQLExpr name, SQLDataType dataType, SQLExpr value) {
+    public SQLDeclareStatement(SQLName name, SQLDataType dataType, SQLExpr value) {
         this.addItem(new SQLDeclareItem(name, dataType, value));
     }
 

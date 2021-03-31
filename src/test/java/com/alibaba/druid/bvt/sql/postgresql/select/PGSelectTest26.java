@@ -15,15 +15,14 @@
  */
 package com.alibaba.druid.bvt.sql.postgresql.select;
 
-import java.util.List;
-
-import org.junit.Assert;
-
 import com.alibaba.druid.sql.PGTest;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.postgresql.parser.PGSQLStatementParser;
 import com.alibaba.druid.sql.dialect.postgresql.visitor.PGSchemaStatVisitor;
+import org.junit.Assert;
+
+import java.util.List;
 
 public class PGSelectTest26 extends PGTest {
 
@@ -50,6 +49,6 @@ public class PGSelectTest26 extends PGTest {
 //        System.out.println("coditions : " + visitor.getConditions());
 
         Assert.assertEquals(0, visitor.getColumns().size());
-        Assert.assertEquals(1, visitor.getTables().size());
+        Assert.assertEquals(0, visitor.getTables().size());
     }
 }

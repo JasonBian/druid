@@ -15,11 +15,17 @@
  */
 package com.alibaba.druid.sql.dialect.oracle.ast.expr;
 
+import com.alibaba.druid.sql.ast.SQLCommentHint;
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLObject;
+import com.alibaba.druid.sql.ast.SQLReplaceable;
 import com.alibaba.druid.sql.dialect.oracle.ast.OracleSQLObjectImpl;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleASTVisitor;
 
-public class OracleArgumentExpr extends OracleSQLObjectImpl implements SQLExpr {
+import java.util.Collections;
+import java.util.List;
+
+public class OracleArgumentExpr extends OracleSQLObjectImpl implements SQLExpr, SQLReplaceable {
 
     private String  argumentName;
     private SQLExpr value;
@@ -30,7 +36,7 @@ public class OracleArgumentExpr extends OracleSQLObjectImpl implements SQLExpr {
 
     public OracleArgumentExpr(String argumentName, SQLExpr value){
         this.argumentName = argumentName;
-        this.value = value;
+        setValue(value);
     }
 
     public String getArgumentName() {
@@ -46,6 +52,9 @@ public class OracleArgumentExpr extends OracleSQLObjectImpl implements SQLExpr {
     }
 
     public void setValue(SQLExpr value) {
+        if (value != null) {
+            value.setParent(this);
+        }
         this.value = value;
     }
 
@@ -57,6 +66,7 @@ public class OracleArgumentExpr extends OracleSQLObjectImpl implements SQLExpr {
         visitor.endVisit(this);
     }
 
+    @Override
     public OracleArgumentExpr clone() {
         OracleArgumentExpr x = new OracleArgumentExpr();
         x.argumentName = argumentName;
@@ -67,4 +77,19 @@ public class OracleArgumentExpr extends OracleSQLObjectImpl implements SQLExpr {
 
         return x;
     }
+
+    @Override
+    public boolean replace(SQLExpr expr, SQLExpr target) {
+        if (value == expr) {
+            setValue(target);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public List<SQLObject> getChildren() {
+        return Collections.<SQLObject>singletonList(this.value);
+    }
+
 }

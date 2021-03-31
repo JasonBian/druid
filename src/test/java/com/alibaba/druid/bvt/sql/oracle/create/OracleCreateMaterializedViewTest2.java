@@ -73,7 +73,7 @@ public class OracleCreateMaterializedViewTest2 extends OracleTest {
 
         assertEquals(3, visitor.getTables().size());
 
-        assertEquals(8, visitor.getColumns().size());
+        assertEquals(7, visitor.getColumns().size());
 
         assertTrue(visitor.getColumns().contains(new TableStat.Column("times", "calendar_month_desc")));
     }

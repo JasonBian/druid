@@ -68,6 +68,18 @@ public abstract class OdpsStatisticClause extends OdpsObjectImpl {
         }
     }
 
+
+    public static class DistinctValue extends ColumnStatisticClause {
+        @Override
+        public void accept0(OdpsASTVisitor visitor) {
+            if (visitor.visit(this)) {
+                acceptChild(visitor, column);
+            }
+            visitor.endVisit(this);
+        }
+    }
+
+
     public static class ColumnMax extends ColumnStatisticClause {
         @Override
         public void accept0(OdpsASTVisitor visitor) {

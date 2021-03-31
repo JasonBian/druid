@@ -15,26 +15,32 @@
  */
 package com.alibaba.druid.sql.ast.statement;
 
-import java.util.List;
-
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLCommentHint;
+import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.SQLStatementImpl;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SQLExplainStatement extends SQLStatementImpl {
-
-    private String type;
-
-    protected SQLStatement       statement;
-
-    private List<SQLCommentHint> hints;
+    protected String               type;
+    protected String               format;
+    protected boolean              extended;
+    protected boolean              dependency;
+    protected boolean              authorization;
+    protected boolean              optimizer;
+    protected SQLStatement         statement;
+    protected List<SQLCommentHint> hints;
+    protected boolean              parenthesis;
     
     public SQLExplainStatement() {
         
     }
     
-    public SQLExplainStatement(String dbType) {
+    public SQLExplainStatement(DbType dbType) {
         super (dbType);
     }
 
@@ -71,5 +77,62 @@ public class SQLExplainStatement extends SQLStatementImpl {
 
     public void setHints(List<SQLCommentHint> hints) {
         this.hints = hints;
+    }
+
+    @Override
+    public List<SQLObject> getChildren() {
+        List<SQLObject> children = new ArrayList<SQLObject>();
+        if (statement != null) {
+            children.add(statement);
+        }
+        return children;
+    }
+
+    public boolean isExtended() {
+        return extended;
+    }
+
+    public void setExtended(boolean extended) {
+        this.extended = extended;
+    }
+
+    public boolean isDependency() {
+        return dependency;
+    }
+
+    public void setDependency(boolean dependency) {
+        this.dependency = dependency;
+    }
+
+    public boolean isAuthorization() {
+        return authorization;
+    }
+
+    public void setAuthorization(boolean authorization) {
+        this.authorization = authorization;
+    }
+
+    public boolean isOptimizer() {
+        return optimizer;
+    }
+
+    public void setOptimizer(boolean optimizer) {
+        this.optimizer = optimizer;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    public boolean isParenthesis() {
+        return parenthesis;
+    }
+
+    public void setParenthesis(boolean parenthesis) {
+        this.parenthesis = parenthesis;
     }
 }

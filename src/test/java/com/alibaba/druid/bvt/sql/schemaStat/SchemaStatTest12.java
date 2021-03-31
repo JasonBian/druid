@@ -1,5 +1,6 @@
 package com.alibaba.druid.bvt.sql.schemaStat;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
@@ -32,9 +33,11 @@ public class SchemaStatTest12 extends TestCase {
                 "   where t4.dept_name like 'MY-XDSYB-JSB%' and t2.emp_type in( 'R' , 'V' ) and t2.is_deleted = 'N' and t2.work_status = 'A' " +
                 ") t5 group by work_no , nick_name , name having invest_percent < 1.0 ";
 
-        String dbType = JdbcConstants.ORACLE;
+        DbType dbType = JdbcConstants.ORACLE;
         SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, dbType);
         SQLStatement stmt = parser.parseStatementList().get(0);
+
+        System.out.println(stmt);
 
         SchemaStatVisitor statVisitor = SQLUtils.createSchemaStatVisitor(dbType);
         stmt.accept(statVisitor);
@@ -44,14 +47,15 @@ public class SchemaStatTest12 extends TestCase {
             System.out.println(relationship); // table1.id = table2.id
         }
 
-//        System.out.println(statVisitor.getColumns());
-//        System.out.println(statVisitor.getGroupByColumns()); // group by
-        System.out.println("relationships : " + statVisitor.getRelationships()); // group by
-        System.out.println(statVisitor.getConditions());
+        System.out.println("columns : " + statVisitor.getColumns());
+        System.out.println("group by : " + statVisitor.getGroupByColumns());
+        System.out.println("relationships : " + statVisitor.getRelationships());
+        System.out.println("conditions : " + statVisitor.getConditions());
+        System.out.println("functionns : " + statVisitor.getFunctions());
         assertEquals(3, relationships.size());
 
-        Assert.assertEquals(21, statVisitor.getColumns().size());
-        Assert.assertEquals(20, statVisitor.getConditions().size());
+        Assert.assertEquals(23, statVisitor.getColumns().size());
+        Assert.assertEquals(19, statVisitor.getConditions().size());
         assertEquals(1, statVisitor.getFunctions().size());
     }
 }

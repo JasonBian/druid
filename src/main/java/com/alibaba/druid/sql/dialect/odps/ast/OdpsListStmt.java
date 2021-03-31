@@ -15,19 +15,18 @@
  */
 package com.alibaba.druid.sql.dialect.odps.ast;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.SQLStatementImpl;
 import com.alibaba.druid.sql.dialect.odps.visitor.OdpsASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
-import com.alibaba.druid.util.JdbcConstants;
 
 public class OdpsListStmt extends SQLStatementImpl {
 
     private SQLExpr object;
 
     public OdpsListStmt(){
-        super(JdbcConstants.ODPS);
+        super(DbType.odps);
     }
 
     @Override

@@ -52,7 +52,7 @@ public class OracleCreateIndexTest10_function extends OracleTest {
 
         assertTrue(visitor.getTables().containsKey(new TableStat.Name("employees")));
 
-        assertEquals(0, visitor.getColumns().size());
+        assertEquals(1, visitor.getColumns().size());
 
 //         assertTrue(visitor.getColumns().contains(new TableStat.Column("xwarehouses", "sales_rep_id")));
         // assertTrue(visitor.getColumns().contains(new TableStat.Column("pivot_table", "YEAR")));

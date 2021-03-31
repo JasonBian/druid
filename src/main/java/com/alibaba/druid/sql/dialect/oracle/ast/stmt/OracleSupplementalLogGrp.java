@@ -69,4 +69,18 @@ public class OracleSupplementalLogGrp extends OracleSQLObjectImpl implements SQL
     public void setAlways(boolean always) {
         this.always = always;
     }
+
+    public OracleSupplementalLogGrp clone() {
+        OracleSupplementalLogGrp x = new OracleSupplementalLogGrp();
+        if (group != null) {
+            x.setGroup(group.clone());
+        }
+        for (SQLName column : columns) {
+            SQLName c2 = column.clone();
+            c2.setParent(x);
+            x.columns.add(c2);
+        }
+        x.always = always;
+        return x;
+    }
 }

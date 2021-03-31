@@ -15,11 +15,14 @@
  */
 package com.alibaba.druid.sql.dialect.phoenix.visitor;
 
-import com.alibaba.druid.sql.dialect.db2.visitor.DB2ASTVisitor;
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
 
 /**
  * Created by wenshao on 16/9/13.
  */
 public class PhoenixSchemaStatVisitor extends SchemaStatVisitor implements PhoenixASTVisitor {
+    public PhoenixSchemaStatVisitor() {
+        super(DbType.phoenix);
+    }
 }

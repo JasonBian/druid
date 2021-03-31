@@ -15,10 +15,6 @@
  */
 package com.alibaba.druid.bvt.sql.mysql.select;
 
-import java.util.List;
-
-import org.junit.Assert;
-
 import com.alibaba.druid.sql.MysqlTest;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
@@ -28,6 +24,9 @@ import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.stat.TableStat;
+import org.junit.Assert;
+
+import java.util.List;
 
 public class MySqlSelectTest_group_concat extends MysqlTest {
 
@@ -49,12 +48,19 @@ public class MySqlSelectTest_group_concat extends MysqlTest {
         MySqlSelectQueryBlock queryBlock = (MySqlSelectQueryBlock) select.getQuery();
         Assert.assertNotNull(queryBlock.getOrderBy());
 
-//        print(statementList);
+        System.out.println(stmt);
 
         Assert.assertEquals(1, statementList.size());
 
         MySqlSchemaStatVisitor visitor = new MySqlSchemaStatVisitor();
         stmt.accept(visitor);
+
+
+
+        System.out.println("Tables : " + visitor.getTables());
+        System.out.println("fields : " + visitor.getColumns());
+        System.out.println("coditions : " + visitor.getConditions());
+        System.out.println("orderBy : " + visitor.getOrderByColumns());
 
         Assert.assertEquals(1, visitor.getTables().size());
         Assert.assertEquals(4, visitor.getColumns().size());

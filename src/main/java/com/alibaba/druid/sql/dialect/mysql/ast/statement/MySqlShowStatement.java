@@ -15,6 +15,8 @@
  */
 package com.alibaba.druid.sql.dialect.mysql.ast.statement;
 
-public interface MySqlShowStatement extends MySqlStatement {
+import com.alibaba.druid.sql.ast.statement.SQLShowStatement;
+
+public interface MySqlShowStatement extends MySqlStatement, SQLShowStatement {
 
 }

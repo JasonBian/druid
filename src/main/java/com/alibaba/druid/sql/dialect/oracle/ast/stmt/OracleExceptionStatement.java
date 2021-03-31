@@ -15,13 +15,13 @@
  */
 package com.alibaba.druid.sql.dialect.oracle.ast.stmt;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.oracle.ast.OracleSQLObjectImpl;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleASTVisitor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class OracleExceptionStatement extends OracleStatementImpl implements OracleStatement {
 
@@ -72,6 +72,18 @@ public class OracleExceptionStatement extends OracleStatementImpl implements Ora
             visitor.endVisit(this);
         }
 
+        public Item clone() {
+            Item x = new Item();
+            if (when != null) {
+                x.setWhen(when.clone());
+            }
+            for (SQLStatement stmt : statements) {
+                SQLStatement stmt2 = stmt.clone();
+                stmt2.setParent(x);
+                x.statements.add(stmt2);
+            }
+            return x;
+        }
     }
 
     @Override
@@ -80,5 +92,15 @@ public class OracleExceptionStatement extends OracleStatementImpl implements Ora
             acceptChild(visitor, items);
         }
         visitor.endVisit(this);
+    }
+
+    public OracleExceptionStatement clone() {
+        OracleExceptionStatement x = new OracleExceptionStatement();
+        for (Item item : items) {
+            Item item2 = item.clone();
+            item2.setParent(x);
+            x.items.add(item2);
+        }
+        return x;
     }
 }

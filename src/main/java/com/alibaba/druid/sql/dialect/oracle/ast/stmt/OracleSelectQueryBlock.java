@@ -15,43 +15,33 @@
  */
 package com.alibaba.druid.sql.dialect.oracle.ast.stmt;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLCommentHint;
 import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.SQLLimit;
+import com.alibaba.druid.sql.ast.SQLHint;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
+import com.alibaba.druid.sql.dialect.oracle.ast.OracleSQLObject;
 import com.alibaba.druid.sql.dialect.oracle.ast.clause.ModelClause;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
-public class OracleSelectQueryBlock extends SQLSelectQueryBlock {
+public class OracleSelectQueryBlock extends SQLSelectQueryBlock implements OracleSQLObject {
 
-    private List<SQLCommentHint>       hints;
 
     private ModelClause                modelClause;
 
-    private List<SQLExpr>              forUpdateOf;
+
     private boolean                    skipLocked  = false;
 
     public OracleSelectQueryBlock clone() {
         OracleSelectQueryBlock x = new OracleSelectQueryBlock();
 
         super.cloneTo(x);
-
-        if (hints != null) {
-            for (SQLCommentHint hint : hints) {
-                SQLCommentHint hint1 = hint.clone();
-                hint1.setParent(x);
-                x.getHints().add(hint1);
-            }
-        }
 
         if (modelClause != null) {
             x.setModelClause(modelClause.clone());
@@ -61,7 +51,7 @@ public class OracleSelectQueryBlock extends SQLSelectQueryBlock {
             for (SQLExpr item : forUpdateOf) {
                 SQLExpr item1 = item.clone();
                 item1.setParent(x);
-                forUpdateOf.add(item1);
+                x.getForUpdateOf().add(item1);
             }
         }
 
@@ -71,7 +61,7 @@ public class OracleSelectQueryBlock extends SQLSelectQueryBlock {
     }
 
     public OracleSelectQueryBlock(){
-
+        dbType = DbType.oracle;
     }
 
     public ModelClause getModelClause() {
@@ -80,36 +70,6 @@ public class OracleSelectQueryBlock extends SQLSelectQueryBlock {
 
     public void setModelClause(ModelClause modelClause) {
         this.modelClause = modelClause;
-    }
-
-    public List<SQLCommentHint> getHints() {
-        if (hints == null) {
-            hints = new ArrayList<SQLCommentHint>(1);
-        }
-        return this.hints;
-    }
-
-    public int getHintsSize() {
-        if (hints == null) {
-            return 0;
-        }
-
-        return hints.size();
-    }
-
-    public List<SQLExpr> getForUpdateOf() {
-        if (forUpdateOf == null) {
-            forUpdateOf = new ArrayList<SQLExpr>(1);
-        }
-        return forUpdateOf;
-    }
-
-    public int getForUpdateOfSize() {
-        if (forUpdateOf == null) {
-            return 0;
-        }
-
-        return forUpdateOf.size();
     }
 
     public boolean isSkipLocked() {
@@ -130,7 +90,7 @@ public class OracleSelectQueryBlock extends SQLSelectQueryBlock {
         super.accept0(visitor);
     }
 
-    protected void accept0(OracleASTVisitor visitor) {
+    public void accept0(OracleASTVisitor visitor) {
         if (visitor.visit(this)) {
             acceptChild(visitor, this.hints);
             acceptChild(visitor, this.selectList);

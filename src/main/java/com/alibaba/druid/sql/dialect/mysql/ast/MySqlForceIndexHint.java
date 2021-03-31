@@ -18,6 +18,9 @@ package com.alibaba.druid.sql.dialect.mysql.ast;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitor;
 
 public class MySqlForceIndexHint extends MySqlIndexHintImpl {
+    public MySqlForceIndexHint() {
+
+    }
 
     @Override
     public void accept0(MySqlASTVisitor visitor) {
@@ -27,4 +30,9 @@ public class MySqlForceIndexHint extends MySqlIndexHintImpl {
         visitor.endVisit(this);
     }
 
+    public MySqlForceIndexHint clone() {
+        MySqlForceIndexHint x = new MySqlForceIndexHint();
+        cloneTo(x);
+        return x;
+    }
 }

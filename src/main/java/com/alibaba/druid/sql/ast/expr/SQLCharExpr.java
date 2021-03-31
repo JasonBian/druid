@@ -16,27 +16,33 @@
 package com.alibaba.druid.sql.ast.expr;
 
 import com.alibaba.druid.sql.SQLUtils;
+import com.alibaba.druid.sql.ast.SQLDataType;
+import com.alibaba.druid.sql.ast.SQLObject;
+import com.alibaba.druid.sql.ast.statement.SQLCharacterDataType;
+import com.alibaba.druid.sql.visitor.SQLASTOutputVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
-public class SQLCharExpr extends SQLTextLiteralExpr implements SQLValuableExpr{
+import java.util.Collections;
+import java.util.List;
+
+public class SQLCharExpr extends SQLTextLiteralExpr implements SQLValuableExpr, Comparable<SQLCharExpr> {
+    public static final SQLDataType DATA_TYPE = new SQLCharacterDataType("char");
 
     public SQLCharExpr(){
 
     }
 
     public SQLCharExpr(String text){
-        super(text);
+        this.text = text;
     }
 
-    @Override
-    public void output(StringBuffer buf) {
-        if ((this.text == null) || (this.text.length() == 0)) {
-            buf.append("NULL");
-        } else {
-            buf.append("'");
-            buf.append(this.text.replaceAll("'", "''"));
-            buf.append("'");
-        }
+    public SQLCharExpr(String text, SQLObject parent){
+        this.text = text;
+        this.parent = parent;
+    }
+
+    public void output(Appendable buf) {
+        this.accept(new SQLASTOutputVisitor(buf));
     }
 
     protected void accept0(SQLASTVisitor visitor) {
@@ -55,5 +61,18 @@ public class SQLCharExpr extends SQLTextLiteralExpr implements SQLValuableExpr{
 
     public SQLCharExpr clone() {
         return new SQLCharExpr(this.text);
+    }
+
+    public SQLDataType computeDataType() {
+        return DATA_TYPE;
+    }
+
+    public List<SQLObject> getChildren() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public int compareTo(SQLCharExpr o) {
+        return this.text.compareTo(o.text);
     }
 }

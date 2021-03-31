@@ -26,6 +26,10 @@ public class MySqlShowStatusStatement extends MySqlStatementImpl implements MySq
     private SQLExpr like;
     private SQLExpr where;
 
+    public MySqlShowStatusStatement() {
+
+    }
+
     public boolean isGlobal() {
         return global;
     }

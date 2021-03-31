@@ -15,6 +15,7 @@
  */
 package com.alibaba.druid.bvt.sql.postgresql.select;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
@@ -24,7 +25,7 @@ import junit.framework.TestCase;
 import java.util.List;
 
 public class PGSelectTest51 extends TestCase {
-    private final String dbType = JdbcConstants.POSTGRESQL;
+    private final DbType dbType = JdbcConstants.POSTGRESQL;
 
     public void test_0() throws Exception {
         String sql = "SELECT TMP_PAGE.*, ROWNUM ROW_ID FROM ( SELECT M.*, A.*\n" +
@@ -64,7 +65,7 @@ public class PGSelectTest51 extends TestCase {
 
         assertEquals("SELECT TMP_PAGE.*, ROWNUM AS ROW_ID\n" +
                 "FROM (\n" +
-                "\tSELECT M.*, A.*\n" +
+                "\t(SELECT M.*, A.*\n" +
                 "\tFROM T_EW_MERCHANT M\n" +
                 "\t\tLEFT JOIN LP_ADDRESS A ON M.ADDRESS_KEY = A.KEY\n" +
                 "\tWHERE M.MERCHANT_CODE LIKE ('%' || ? || '%')\n" +
@@ -78,13 +79,13 @@ public class PGSelectTest51 extends TestCase {
                 "\t\tOR A.COUNTY LIKE ('%' || ? || '%')\n" +
                 "\t\tOR A.STREET_AREA LIKE ('%' || ? || '%')\n" +
                 "\t\tOR A.DETAILE LIKE ('%' || ? || '%')\n" +
-                "\t\tOR A.ZIPCODE LIKE ('%' || ? || '%')\n" +
+                "\t\tOR A.ZIPCODE LIKE ('%' || ? || '%'))\n" +
                 ") TMP_PAGE\n" +
                 "WHERE ROWNUM <= 10", SQLUtils.toPGString(stmt));
         
         assertEquals("select TMP_PAGE.*, ROWNUM as ROW_ID\n" +
                 "from (\n" +
-                "\tselect M.*, A.*\n" +
+                "\t(select M.*, A.*\n" +
                 "\tfrom T_EW_MERCHANT M\n" +
                 "\t\tleft join LP_ADDRESS A on M.ADDRESS_KEY = A.KEY\n" +
                 "\twhere M.MERCHANT_CODE like ('%' || ? || '%')\n" +
@@ -98,7 +99,7 @@ public class PGSelectTest51 extends TestCase {
                 "\t\tor A.COUNTY like ('%' || ? || '%')\n" +
                 "\t\tor A.STREET_AREA like ('%' || ? || '%')\n" +
                 "\t\tor A.DETAILE like ('%' || ? || '%')\n" +
-                "\t\tor A.ZIPCODE like ('%' || ? || '%')\n" +
+                "\t\tor A.ZIPCODE like ('%' || ? || '%'))\n" +
                 ") TMP_PAGE\n" +
                 "where ROWNUM <= 10", SQLUtils.toPGString(stmt, SQLUtils.DEFAULT_LCASE_FORMAT_OPTION));
 
@@ -107,9 +108,9 @@ public class PGSelectTest51 extends TestCase {
         SchemaStatVisitor visitor = SQLUtils.createSchemaStatVisitor(dbType);
         stmt.accept(visitor);
 
-//        System.out.println("Tables : " + visitor.getTables());
-//        System.out.println("fields : " + visitor.getColumns());
-//        System.out.println("coditions : " + visitor.getConditions());
+        System.out.println("Tables : " + visitor.getTables());
+        System.out.println("fields : " + visitor.getColumns());
+        System.out.println("coditions : " + visitor.getConditions());
 
         assertEquals(15, visitor.getColumns().size());
         assertEquals(2, visitor.getTables().size());

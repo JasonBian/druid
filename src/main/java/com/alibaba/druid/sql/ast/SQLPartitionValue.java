@@ -15,12 +15,14 @@
  */
 package com.alibaba.druid.sql.ast;
 
+import com.alibaba.druid.sql.dialect.oracle.ast.OracleSegmentAttributes;
+import com.alibaba.druid.sql.dialect.oracle.ast.OracleSegmentAttributesImpl;
+import com.alibaba.druid.sql.visitor.SQLASTVisitor;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.alibaba.druid.sql.visitor.SQLASTVisitor;
-
-public class SQLPartitionValue extends SQLObjectImpl {
+public class SQLPartitionValue extends OracleSegmentAttributesImpl {
 
     protected Operator            operator;
     protected final List<SQLExpr> items = new ArrayList<SQLExpr>();
@@ -57,5 +59,17 @@ public class SQLPartitionValue extends SQLObjectImpl {
             acceptChild(visitor, getItems());
         }
         visitor.endVisit(this);
+    }
+
+    public SQLPartitionValue clone() {
+        SQLPartitionValue x = new SQLPartitionValue(operator);
+
+        for (SQLExpr item : items) {
+            SQLExpr item2 = item.clone();
+            item2.setParent(x);
+            x.items.add(item2);
+        }
+
+        return x;
     }
 }

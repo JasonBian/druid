@@ -59,11 +59,38 @@ public class SQLCaseStatement extends SQLStatementImpl implements Serializable {
 
     protected void accept0(SQLASTVisitor visitor) {
         if (visitor.visit(this)) {
-            acceptChild(visitor, this.valueExpr);
-            acceptChild(visitor, this.items);
-            acceptChild(visitor, this.elseStatements);
+            if (this.valueExpr != null) {
+                this.valueExpr.accept(visitor);
+            }
+
+            if (this.items != null) {
+                for (Item item : this.items) {
+                    if (item != null) {
+                        item.accept(visitor);
+                    }
+                }
+            }
+
+            if (this.elseStatements != null) {
+                for (SQLStatement item : this.elseStatements) {
+                    if (item != null) {
+                        item.accept(visitor);
+                    }
+                }
+            }
         }
         visitor.endVisit(this);
+    }
+
+    @Override
+    public List<SQLObject> getChildren() {
+        List<SQLObject> children = new ArrayList<SQLObject>();
+        if (valueExpr != null) {
+            children.add(valueExpr);
+        }
+        children.addAll(this.items);
+        children.addAll(this.elseStatements);
+        return children;
     }
 
     public static class Item extends SQLObjectImpl implements Serializable {
@@ -106,8 +133,13 @@ public class SQLCaseStatement extends SQLStatementImpl implements Serializable {
 
         protected void accept0(SQLASTVisitor visitor) {
             if (visitor.visit(this)) {
-                acceptChild(visitor, this.conditionExpr);
-                acceptChild(visitor, this.statement);
+                if (this.conditionExpr != null) {
+                    this.conditionExpr.accept(visitor);
+                }
+
+                if (this.statement != null) {
+                    this.statement.accept(visitor);
+                }
             }
             visitor.endVisit(this);
         }
@@ -145,14 +177,14 @@ public class SQLCaseStatement extends SQLStatementImpl implements Serializable {
 
         SQLCaseStatement that = (SQLCaseStatement) o;
 
-        if (items != null ? !items.equals(that.items) : that.items != null) return false;
+        if (!items.equals(that.items)) return false;
         if (valueExpr != null ? !valueExpr.equals(that.valueExpr) : that.valueExpr != null) return false;
         return elseStatements != null ? elseStatements.equals(that.elseStatements) : that.elseStatements == null;
     }
 
     @Override
     public int hashCode() {
-        int result = items != null ? items.hashCode() : 0;
+        int result = items.hashCode();
         result = 31 * result + (valueExpr != null ? valueExpr.hashCode() : 0);
         result = 31 * result + (elseStatements != null ? elseStatements.hashCode() : 0);
         return result;

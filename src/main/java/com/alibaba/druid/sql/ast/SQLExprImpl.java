@@ -15,6 +15,8 @@
  */
 package com.alibaba.druid.sql.ast;
 
+import java.util.List;
+
 public abstract class SQLExprImpl extends SQLObjectImpl implements SQLExpr {
 
     public SQLExprImpl(){
@@ -25,7 +27,15 @@ public abstract class SQLExprImpl extends SQLObjectImpl implements SQLExpr {
 
     public abstract int hashCode();
 
-    public SQLExpr clone() {
-        throw new UnsupportedOperationException(this.getClass().getName());
+    public abstract SQLExpr clone();
+
+    public SQLDataType computeDataType() {
+        return null;
     }
+
+    @Override
+    public List<SQLObject> getChildren() {
+        return null;
+    }
+
 }

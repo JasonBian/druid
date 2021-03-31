@@ -15,16 +15,16 @@
  */
 package com.alibaba.druid.sql.dialect.oracle.ast.stmt;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatementImpl;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
-import com.alibaba.druid.util.JdbcConstants;
 
 public abstract class OracleStatementImpl extends SQLStatementImpl implements OracleStatement {
     
     public OracleStatementImpl() {
-        super(JdbcConstants.ORACLE);
+        super(DbType.oracle);
     }
 
     protected void accept0(SQLASTVisitor visitor) {

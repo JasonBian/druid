@@ -15,11 +15,15 @@
  */
 package com.alibaba.druid.sql.ast;
 
+import com.alibaba.druid.DbType;
+
 import java.util.List;
 
 public interface SQLDataType extends SQLObject {
 
     String getName();
+
+    long nameHashCode64();
 
     void setName(String name);
 
@@ -29,6 +33,43 @@ public interface SQLDataType extends SQLObject {
     void  setWithTimeZone(Boolean value);
 
     boolean isWithLocalTimeZone();
+    void setWithLocalTimeZone(boolean value);
 
     SQLDataType clone();
+
+    void setDbType(DbType dbType);
+    DbType getDbType();
+
+    int jdbcType();
+
+    interface Constants {
+        String CHAR = "CHAR";
+        String NCHAR = "NCHAR";
+        String VARCHAR = "VARCHAR";
+        String VARBINARY = "VARBINARY";
+        String DATE = "DATE";
+        String TIMESTAMP = "TIMESTAMP";
+        String XML = "XML";
+
+        String DECIMAL = "DECIMAL";
+        String NUMBER = "NUMBER";
+        String REAL = "REAL";
+        String DOUBLE_PRECISION = "DOUBLE PRECISION";
+        String DOUBLE = "DOUBLE";
+
+        String TINYINT = "TINYINT";
+        String SMALLINT = "SMALLINT";
+        String INT = "INT";
+        String BIGINT = "BIGINT";
+        String TEXT = "TEXT";
+        String BYTEA = "BYTEA";
+        String BOOLEAN = "BOOLEAN";
+
+        String FLOAT = "FLOAT";
+    }
+
+    boolean isInt();
+    boolean isNumberic();
+    public boolean isString();
+    public boolean hasKeyLength();
 }

@@ -17,11 +17,11 @@ package com.alibaba.druid.sql.ast.statement;
 
 import java.util.List;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
-
 public interface SQLUniqueConstraint extends SQLConstraint {
 
-    List<SQLExpr> getColumns();
+    List<SQLSelectOrderByItem> getColumns();
 
     boolean containsColumn(String column);
+
+    boolean containsColumn(long columnNameHash);
 }

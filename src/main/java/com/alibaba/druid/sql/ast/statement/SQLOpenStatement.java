@@ -16,8 +16,14 @@
 package com.alibaba.druid.sql.ast.statement;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLName;
 import com.alibaba.druid.sql.ast.SQLStatementImpl;
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 
  * @author zz [455910092@qq.com]
@@ -25,22 +31,39 @@ import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 public class SQLOpenStatement extends SQLStatementImpl{
 	
 	//cursor name
-	private String cursorName;
+	private SQLName cursorName;
+
+	private final List<SQLName> columns = new ArrayList<SQLName>();
 
 	private SQLExpr forExpr;
+
+	private final List<SQLExpr> using = new ArrayList<SQLExpr>();
+
+	public SQLOpenStatement() {
+
+	}
 	
-	public String getCursorName() {
+	public SQLName getCursorName() {
 		return cursorName;
 	}
 	
 	public void setCursorName(String cursorName) {
+		setCursorName(new SQLIdentifierExpr(cursorName));
+	}
+
+	public void setCursorName(SQLName cursorName) {
+		if (cursorName != null) {
+			cursorName.setParent(this);
+		}
 		this.cursorName = cursorName;
 	}
 
 	@Override
 	protected void accept0(SQLASTVisitor visitor) {
 		if (visitor.visit(this)) {
+			acceptChild(visitor, cursorName);
 			acceptChild(visitor, forExpr);
+			acceptChild(visitor, columns);
 		}
 	    visitor.endVisit(this);
 	}
@@ -54,5 +77,13 @@ public class SQLOpenStatement extends SQLStatementImpl{
 			forExpr.setParent(this);
 		}
 		this.forExpr = forExpr;
+	}
+
+	public List<SQLName> getColumns() {
+		return columns;
+	}
+
+	public List<SQLExpr> getUsing() {
+		return using;
 	}
 }

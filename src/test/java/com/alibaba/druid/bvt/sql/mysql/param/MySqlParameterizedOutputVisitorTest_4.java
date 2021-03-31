@@ -15,14 +15,11 @@
  */
 package com.alibaba.druid.bvt.sql.mysql.param;
 
-import junit.framework.TestCase;
-
-import org.junit.Assert;
-
 import com.alibaba.druid.sql.visitor.ParameterizedOutputVisitorUtils;
 import com.alibaba.druid.util.JdbcConstants;
+import org.junit.Assert;
 
-public class MySqlParameterizedOutputVisitorTest_4 extends TestCase {
+public class MySqlParameterizedOutputVisitorTest_4 extends MySQLParameterizedTest {
 
     public void test_0() throws Exception {
         String sql = "select user0_.id as id0_, user0_.email as email0_, " //

@@ -15,11 +15,17 @@
  */
 package com.alibaba.druid.sql.ast.statement;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLObject;
+import com.alibaba.druid.sql.ast.SQLReplaceable;
 import com.alibaba.druid.sql.ast.SQLStatementImpl;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
-public class SQLReturnStatement extends SQLStatementImpl {
+import java.util.Collections;
+import java.util.List;
+
+public class SQLReturnStatement extends SQLStatementImpl implements SQLReplaceable  {
 
     private SQLExpr expr;
 
@@ -27,7 +33,7 @@ public class SQLReturnStatement extends SQLStatementImpl {
 
     }
 
-    public SQLReturnStatement(String dbType) {
+    public SQLReturnStatement(DbType dbType) {
         super (dbType);
     }
 
@@ -48,5 +54,27 @@ public class SQLReturnStatement extends SQLStatementImpl {
             acceptChild(visitor, expr);
         }
         visitor.endVisit(this);
+    }
+
+    public SQLReturnStatement clone() {
+        SQLReturnStatement x = new SQLReturnStatement();
+        if (expr != null) {
+            x.setExpr(expr.clone());
+        }
+        return x;
+    }
+
+    @Override
+    public List<SQLObject> getChildren() {
+        return Collections.<SQLObject>singletonList(this.expr);
+    }
+
+    @Override
+    public boolean replace(SQLExpr expr, SQLExpr target) {
+        if (this.expr == expr) {
+            setExpr(target);
+            return true;
+        }
+        return false;
     }
 }

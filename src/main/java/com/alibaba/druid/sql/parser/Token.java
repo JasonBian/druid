@@ -66,12 +66,11 @@ public enum Token {
     
     EXPLAIN("EXPLAIN"), 
     FOR("FOR"), 
-    IF("IF"), 
-   
-   
-   
-    ALL("ALL"), 
-    UNION("UNION"), 
+    IF("IF"),
+
+    GLOBAL("GLOBAL"),
+    ALL("ALL"),
+    UNION("UNION"),
     EXCEPT("EXCEPT"), 
     INTERSECT("INTERSECT"), 
     MINUS("MINUS"),
@@ -80,8 +79,9 @@ public enum Token {
     RIGHT("RIGHT"), 
     FULL("FULL"), 
     OUTER("OUTER"), 
-    JOIN("JOIN"), 
-    ON("ON"), 
+    JOIN("JOIN"),
+    STRAIGHT_JOIN("STRAIGHT_JOIN"),
+    ON("ON"),
     SCHEMA("SCHEMA"), 
     CAST("CAST"),
     COLUMN("COLUMN"),
@@ -129,6 +129,9 @@ public enum Token {
     BINARY("BINARY"),
     SHOW("SHOW"),
     REPLACE("REPLACE"),
+    PERIOD("PERIOD"),
+
+    BITS,
 
     // MySql procedure add by zz
     WHILE("WHILE"),
@@ -175,6 +178,8 @@ public enum Token {
     OVER("OVER"),
     TYPE("TYPE"),
     ILIKE("ILIKE"),
+    RLIKE("RLIKE"),
+    FULLTEXT("FULLTEXT"),
 
     // oracle
     START("START"),
@@ -183,7 +188,7 @@ public enum Token {
     WITH("WITH"),
     EXTRACT("EXTRACT"),
     CURSOR("CURSOR"),
-    MODEL("MODEL"),
+//    MODEL("MODEL"),
     MERGE("MERGE"),
     MATCHED("MATCHED"),
     ERRORS("ERRORS"),
@@ -233,7 +238,7 @@ public enum Token {
     KEEP_DUPLICATES("KEEP_DUPLICATES"),
     EXCEPTIONS("EXCEPTIONS"),
     PURGE("PURGE"),
-    
+
     COMPUTE("COMPUTE"),
     ANALYZE("ANALYZE"),
     OPTIMIZE("OPTIMIZE"),
@@ -256,7 +261,9 @@ public enum Token {
     LITERAL_HEX,
     LITERAL_CHARS,
     LITERAL_NCHARS,
-    
+
+    LITERAL_PATH,
+
     LITERAL_ALIAS,
     LINE_COMMENT,
     MULTI_LINE_COMMENT,
@@ -269,7 +276,9 @@ public enum Token {
     PARTITION,
     PARTITIONED,
     OVERWRITE,
-    
+    SORT,
+    LATERAL,
+
     // Teradata
     SEL("SEL"),
     LOCKING("LOCKING"),
@@ -281,7 +290,8 @@ public enum Token {
     FORMAT("FORMAT"),
     QUALIFY("QUALIFY"),
     MOD("MOD"),
-    
+    CONTAINS("CONTAINS"),
+
     CONCAT("CONCAT"), // DB2
 
     UPSERT("UPSERT"), // Phoenix
@@ -315,7 +325,8 @@ public enum Token {
     COLON(":"), 
     COLONCOLON("::"), 
     COLONEQ(":="), 
-    EQEQ("=="), 
+    EQEQ("=="),
+    EQGT("=>"),
     LTEQ("<="), 
     LTEQGT("<=>"), 
     LTGT("<>"), 

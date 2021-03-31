@@ -15,6 +15,7 @@
  */
 package com.alibaba.druid.sql.parser;
 
+import com.alibaba.druid.sql.ast.statement.SQLPrimaryKeyImpl;
 import com.alibaba.druid.sql.ast.statement.SQLTableConstraint;
 
 public class SQLDDLParser extends SQLStatementParser {
@@ -28,20 +29,25 @@ public class SQLDDLParser extends SQLStatementParser {
     }
 
     protected SQLTableConstraint parseConstraint() {
-        if (lexer.token() == Token.CONSTRAINT) {
+        if (lexer.token == Token.CONSTRAINT) {
             lexer.nextToken();
         }
 
-        if (lexer.token() == Token.IDENTIFIER) {
+        if (lexer.token == Token.IDENTIFIER) {
             this.exprParser.name();
             throw new ParserException("TODO. " + lexer.info());
         }
 
-        if (lexer.token() == Token.PRIMARY) {
+        if (lexer.token == Token.PRIMARY) {
             lexer.nextToken();
             accept(Token.KEY);
 
-            throw new ParserException("TODO. " + lexer.info());
+            SQLPrimaryKeyImpl pk = new SQLPrimaryKeyImpl();
+            accept(Token.LPAREN);
+            this.exprParser.orderBy(pk.getColumns(), pk);
+            accept(Token.RPAREN);
+
+            return pk;
         }
 
         throw new ParserException("TODO " + lexer.info());

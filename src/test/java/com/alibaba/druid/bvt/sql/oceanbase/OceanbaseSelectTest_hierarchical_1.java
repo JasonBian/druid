@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group Holding Ltd.
+ * Copyright 1999-2018 Alibaba Group Holding Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.alibaba.druid.bvt.sql.oceanbase;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.MysqlTest;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
@@ -24,7 +25,7 @@ import com.alibaba.druid.util.JdbcConstants;
 import java.util.List;
 
 public class OceanbaseSelectTest_hierarchical_1 extends MysqlTest {
-    protected final String dbType = JdbcConstants.MYSQL;
+    protected final DbType dbType = JdbcConstants.MYSQL;
 
     public void test_0() throws Exception {
         String sql = "SELECT last_name, employee_id, manager_id, LEVEL\n" +
@@ -65,7 +66,7 @@ public class OceanbaseSelectTest_hierarchical_1 extends MysqlTest {
 
         assertEquals(1, visitor.getTables().size());
         assertEquals(3, visitor.getColumns().size());
-        assertEquals(0, visitor.getConditions().size());
+        assertEquals(2, visitor.getConditions().size());
 
         // assertTrue(visitor.getTables().containsKey(new TableStat.Name("t_basic_store")));
 

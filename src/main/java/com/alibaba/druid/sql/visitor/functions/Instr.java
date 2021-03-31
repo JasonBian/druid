@@ -15,23 +15,23 @@
  */
 package com.alibaba.druid.sql.visitor.functions;
 
-import static com.alibaba.druid.sql.visitor.SQLEvalVisitor.EVAL_VALUE;
-
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.visitor.SQLEvalVisitor;
+
+import static com.alibaba.druid.sql.visitor.SQLEvalVisitor.EVAL_VALUE;
 
 
 public class Instr implements Function {
     public final static Instr instance = new Instr();
     
     public Object eval(SQLEvalVisitor visitor, SQLMethodInvokeExpr x) {
-        if (x.getParameters().size() != 2) {
+        if (x.getArguments().size() != 2) {
             return SQLEvalVisitor.EVAL_ERROR;
         }
 
-        SQLExpr param0 = x.getParameters().get(0);
-        SQLExpr param1 = x.getParameters().get(1);
+        SQLExpr param0 = x.getArguments().get(0);
+        SQLExpr param1 = x.getArguments().get(1);
         param0.accept(visitor);
         param1.accept(visitor);
 

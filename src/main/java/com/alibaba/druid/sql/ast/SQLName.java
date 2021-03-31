@@ -15,8 +15,13 @@
  */
 package com.alibaba.druid.sql.ast;
 
-public interface SQLName extends SQLExpr {
-    String getSimpleName();
+import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
 
+public interface SQLName extends SQLExpr {
+    String  getSimpleName();
     SQLName clone();
+    long    nameHashCode64();
+    long    hashCode64();
+
+    SQLColumnDefinition getResolvedColumn();
 }

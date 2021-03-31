@@ -21,7 +21,8 @@ public enum SQLObjectType {
     PROCEDURE("PROCEDURE"), // 
     USER("USER"), //
     DATABASE("DATABASE"), //
-    ROLE("ROLE"), // 
+    SCHEMA("SCHEMA"), //
+    ROLE("ROLE"), //
     PROJECT("PROJECT"), // 
     PACKAGE("PACKAGE"), // 
     RESOURCE("RESOURCE"), // 
@@ -29,6 +30,8 @@ public enum SQLObjectType {
     JOB("JOB"), // 
     VOLUME("VOLUME"), // 
     OfflineModel("OFFLINEMODEL"), // 
+    SYSTEM("SYSTEM"), //
+    GLOBAL("GLOBAL"), //
     XFLOW("XFLOW") // for odps
     ;
     

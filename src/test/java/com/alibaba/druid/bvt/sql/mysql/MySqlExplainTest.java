@@ -122,7 +122,7 @@ public class MySqlExplainTest extends MysqlTest {
     }
 
     private SQLStatement testParseFormat(String sql) {
-        List<SQLStatement> statements = parse(sql);
+        List<SQLStatement> statements = parseList(sql);
         assertStatements(statements);
 
         SQLStatement statement = statements.get(0);
@@ -143,11 +143,6 @@ public class MySqlExplainTest extends MysqlTest {
         assertHasSeenXConditions(stats, 0);
 
         assertHasSeenTable(stats, tableName);
-    }
-
-    private List<SQLStatement> parse(String sql) {
-        MySqlStatementParser parser = new MySqlStatementParser(sql);
-        return parser.parseStatementList();
     }
 
     private String format(SQLStatement statement) {

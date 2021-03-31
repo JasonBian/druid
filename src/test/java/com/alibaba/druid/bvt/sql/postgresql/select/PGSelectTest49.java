@@ -15,6 +15,7 @@
  */
 package com.alibaba.druid.bvt.sql.postgresql.select;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
@@ -24,7 +25,7 @@ import junit.framework.TestCase;
 import java.util.List;
 
 public class PGSelectTest49 extends TestCase {
-    private final String dbType = JdbcConstants.POSTGRESQL;
+    private final DbType dbType = JdbcConstants.POSTGRESQL;
 
     public void test_0() throws Exception {
         String sql = "WITH sel AS (SELECT\n" +
@@ -37,10 +38,9 @@ public class PGSelectTest49 extends TestCase {
         List<SQLStatement> stmtList = SQLUtils.parseStatements(sql, dbType);
         SQLStatement stmt = stmtList.get(0);
 
-        assertEquals("WITH\n" +
-                "\tsel\n" +
-                "\tAS\n" +
-                "\t(\n" +
+        System.out.println(stmt);
+
+        assertEquals("WITH sel AS (\n" +
                 "\t\tSELECT unnest(ARRAY[4275]) AS gdid, unnest(ARRAY[1]) AS gdnumber\n" +
                 "\t)\n" +
                 "UPDATE goods_detail\n" +
@@ -48,10 +48,7 @@ public class PGSelectTest49 extends TestCase {
                 "FROM sel\n" +
                 "WHERE gd_id = gdid;", SQLUtils.toPGString(stmt));
         
-        assertEquals("with\n" +
-                "\tsel\n" +
-                "\tas\n" +
-                "\t(\n" +
+        assertEquals("with sel as (\n" +
                 "\t\tselect unnest(ARRAY[4275]) as gdid, unnest(ARRAY[1]) as gdnumber\n" +
                 "\t)\n" +
                 "update goods_detail\n" +
@@ -64,8 +61,8 @@ public class PGSelectTest49 extends TestCase {
         SchemaStatVisitor visitor = SQLUtils.createSchemaStatVisitor(dbType);
         stmt.accept(visitor);
 
-//        System.out.println("Tables : " + visitor.getTables());
-//        System.out.println("fields : " + visitor.getColumns());
+        System.out.println("Tables : " + visitor.getTables());
+        System.out.println("fields : " + visitor.getColumns());
 //        System.out.println("coditions : " + visitor.getConditions());
 
         assertEquals(4, visitor.getColumns().size());

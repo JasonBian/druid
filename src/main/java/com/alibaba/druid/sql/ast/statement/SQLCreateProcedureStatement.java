@@ -15,16 +15,17 @@
  */
 package com.alibaba.druid.sql.ast.statement;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.alibaba.druid.sql.ast.SQLName;
 import com.alibaba.druid.sql.ast.SQLParameter;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.SQLStatementImpl;
+import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
-public class SQLCreateProcedureStatement extends SQLStatementImpl {
+import java.util.ArrayList;
+import java.util.List;
+
+public class SQLCreateProcedureStatement extends SQLStatementImpl implements SQLCreateStatement {
 
     private SQLName            definer;
 
@@ -45,6 +46,11 @@ public class SQLCreateProcedureStatement extends SQLStatementImpl {
     private boolean            noSql;
     private boolean            readSqlData;
     private boolean            modifiesSqlData;
+    private boolean            languageSql;
+
+    private String             wrappedSource;
+
+    private SQLCharExpr        comment;
 
     @Override
     public void accept0(SQLASTVisitor visitor) {
@@ -53,6 +59,7 @@ public class SQLCreateProcedureStatement extends SQLStatementImpl {
             acceptChild(visitor, name);
             acceptChild(visitor, parameters);
             acceptChild(visitor, block);
+            acceptChild(visitor, comment);
         }
         visitor.endVisit(this);
     }
@@ -165,5 +172,42 @@ public class SQLCreateProcedureStatement extends SQLStatementImpl {
 
     public void setModifiesSqlData(boolean modifiesSqlData) {
         this.modifiesSqlData = modifiesSqlData;
+    }
+
+    public SQLParameter findParameter(long hash) {
+        for (SQLParameter param : this.parameters) {
+            if (param.getName().nameHashCode64() == hash) {
+                return param;
+            }
+        }
+
+        return null;
+    }
+
+    public boolean isLanguageSql() {
+        return languageSql;
+    }
+
+    public void setLanguageSql(boolean languageSql) {
+        this.languageSql = languageSql;
+    }
+
+    public SQLCharExpr getComment() {
+        return comment;
+    }
+
+    public void setComment(SQLCharExpr comment) {
+        if (comment != null) {
+            comment.setParent(this);
+        }
+        this.comment = comment;
+    }
+
+    public String getWrappedSource() {
+        return wrappedSource;
+    }
+
+    public void setWrappedSource(String wrappedSource) {
+        this.wrappedSource = wrappedSource;
     }
 }

@@ -22,6 +22,8 @@ public class MySqlShowCreateDatabaseStatement extends MySqlStatementImpl impleme
 
     private SQLExpr database;
 
+    private boolean ifNotExists = false;
+
     public void accept0(MySqlASTVisitor visitor) {
         if (visitor.visit(this)) {
             acceptChild(visitor, database);
@@ -37,4 +39,11 @@ public class MySqlShowCreateDatabaseStatement extends MySqlStatementImpl impleme
         this.database = database;
     }
 
+    public boolean isIfNotExists() {
+        return ifNotExists;
+    }
+
+    public void setIfNotExists(boolean ifNotExists) {
+        this.ifNotExists = ifNotExists;
+    }
 }

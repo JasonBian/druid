@@ -15,11 +15,14 @@ package com.alibaba.druid.sql.ast.statement;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.alibaba.druid.sql.ast.SQLName;
-import com.alibaba.druid.sql.ast.SQLStatementImpl;
+import com.alibaba.druid.DbType;
+import com.alibaba.druid.sql.ast.*;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
-public class SQLDropTriggerStatement extends SQLStatementImpl implements SQLDDLStatement {
+import java.util.ArrayList;
+import java.util.List;
+
+public class SQLDropTriggerStatement extends SQLStatementImpl implements SQLDropStatement, SQLReplaceable {
 
     private SQLName name;
     private boolean ifExists;
@@ -28,7 +31,7 @@ public class SQLDropTriggerStatement extends SQLStatementImpl implements SQLDDLS
         
     }
     
-    public SQLDropTriggerStatement(String dbType) {
+    public SQLDropTriggerStatement(DbType dbType) {
         super (dbType);
     }
 
@@ -48,11 +51,29 @@ public class SQLDropTriggerStatement extends SQLStatementImpl implements SQLDDLS
         visitor.endVisit(this);
     }
 
+    @Override
+    public List<SQLObject> getChildren() {
+        List<SQLObject> children = new ArrayList<SQLObject>();
+        if (name != null) {
+            children.add(name);
+        }
+        return children;
+    }
+
     public boolean isIfExists() {
         return ifExists;
     }
 
     public void setIfExists(boolean ifExists) {
         this.ifExists = ifExists;
+    }
+
+    public boolean replace(SQLExpr expr, SQLExpr target) {
+        if (name == expr) {
+            setName((SQLName) target);
+            return true;
+        }
+
+        return false;
     }
 }

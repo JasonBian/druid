@@ -15,12 +15,15 @@
  */
 package com.alibaba.druid.sql.dialect.mysql.ast.statement;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.statement.SQLShowGrantsStatement;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitor;
 
-public class MySqlShowGrantsStatement extends MySqlStatementImpl implements MySqlShowStatement {
-
-    private SQLExpr user;
+public class MySqlShowGrantsStatement extends SQLShowGrantsStatement implements MySqlShowStatement {
+    public MySqlShowGrantsStatement() {
+        dbType = DbType.mysql;
+    }
 
     public void accept0(MySqlASTVisitor visitor) {
         if (visitor.visit(this)) {
@@ -29,15 +32,5 @@ public class MySqlShowGrantsStatement extends MySqlStatementImpl implements MySq
         visitor.endVisit(this);
     }
 
-    public SQLExpr getUser() {
-        return user;
-    }
-
-    public void setUser(SQLExpr user) {
-        if (user != null) {
-            user.setParent(this);
-        }
-        this.user = user;
-    }
 
 }

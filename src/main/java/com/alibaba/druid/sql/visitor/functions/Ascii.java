@@ -15,22 +15,22 @@
  */
 package com.alibaba.druid.sql.visitor.functions;
 
-import static com.alibaba.druid.sql.visitor.SQLEvalVisitor.EVAL_VALUE;
-import static com.alibaba.druid.sql.visitor.SQLEvalVisitor.EVAL_VALUE_NULL;
-
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.visitor.SQLEvalVisitor;
+
+import static com.alibaba.druid.sql.visitor.SQLEvalVisitor.EVAL_VALUE;
+import static com.alibaba.druid.sql.visitor.SQLEvalVisitor.EVAL_VALUE_NULL;
 
 public class Ascii implements Function {
 
     public final static Ascii instance = new Ascii();
 
     public Object eval(SQLEvalVisitor visitor, SQLMethodInvokeExpr x) {
-        if (x.getParameters().size() == 0) {
+        if (x.getArguments().size() == 0) {
             return SQLEvalVisitor.EVAL_ERROR;
         }
-        SQLExpr param = x.getParameters().get(0);
+        SQLExpr param = x.getArguments().get(0);
         param.accept(visitor);
         
         Object paramValue = param.getAttributes().get(EVAL_VALUE);

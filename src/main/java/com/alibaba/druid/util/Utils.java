@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group Holding Ltd.
+ * Copyright 1999-2018 Alibaba Group Holding Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,16 @@
  */
 package com.alibaba.druid.util;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -24,13 +33,15 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.servlet.GenericServlet;
-
 public class Utils {
 
     public final static int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
     public static String read(InputStream in) {
+        if (in == null) {
+            return null;
+        }
+
         InputStreamReader reader;
         try {
             reader = new InputStreamReader(in, "UTF-8");
@@ -41,6 +52,14 @@ public class Utils {
     }
 
     public static String readFromResource(String resource) throws IOException {
+        if (resource == null
+                || resource.isEmpty()
+                || resource.contains("..")
+                || resource.contains("?")
+                || resource.contains(":")) {
+            return null;
+        }
+
         InputStream in = null;
         try {
             in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
@@ -60,6 +79,14 @@ public class Utils {
     }
 
     public static byte[] readByteArrayFromResource(String resource) throws IOException {
+        if (resource == null
+                || resource.isEmpty()
+                || resource.contains("..")
+                || resource.contains("?")
+                || resource.contains(":")) {
+            return null;
+        }
+
         InputStream in = null;
         try {
             in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
@@ -74,9 +101,14 @@ public class Utils {
     }
 
     public static byte[] readByteArray(InputStream input) throws IOException {
+        if (input == null) {
+            return null;
+        }
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         copy(input, output);
-        return output.toByteArray();
+        byte[] bytes = output.toByteArray();
+        output.close();
+        return bytes;
     }
 
     public static long copy(InputStream input, OutputStream output) throws IOException {
@@ -94,8 +126,11 @@ public class Utils {
     }
 
     public static String read(Reader reader) {
-        try {
+        if (reader == null) {
+            return null;
+        }
 
+        try {
             StringWriter writer = new StringWriter();
 
             char[] buffer = new char[DEFAULT_BUFFER_SIZE];
@@ -111,6 +146,10 @@ public class Utils {
     }
 
     public static String read(Reader reader, int length) {
+        if (reader == null) {
+            return null;
+        }
+
         try {
             char[] buffer = new char[length];
 
@@ -136,14 +175,13 @@ public class Utils {
         if (date == null) {
             return null;
         }
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return format.format(date);
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(date);
     }
 
     public static String getStackTrace(Throwable ex) {
         StringWriter buf = new StringWriter();
         ex.printStackTrace(new PrintWriter(buf));
-
         return buf.toString();
     }
 
@@ -200,7 +238,7 @@ public class Utils {
         if (className == null) {
             return null;
         }
-        
+
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
@@ -236,61 +274,61 @@ public class Utils {
     /**
      * murmur hash 2.0, The murmur hash is a relatively fast hash function from http://murmurhash.googlepages.com/ for
      * platforms with efficient multiplication.
-     * 
+     *
      * @author Viliam Holub
      */
-    public static long murmurhash2_64(final byte[] data, int length, int seed) {
-        final long m = 0xc6a4a7935bd1e995L;
-        final int r = 47;
+public static long murmurhash2_64(final byte[] data, int length, int seed) {
+    final long m = 0xc6a4a7935bd1e995L;
+    final int r = 47;
 
-        long h = (seed & 0xffffffffl) ^ (length * m);
+    long h = (seed & 0xffffffffl) ^ (length * m);
 
-        int length8 = length / 8;
+    int length8 = length / 8;
 
-        for (int i = 0; i < length8; i++) {
-            final int i8 = i * 8;
-            long k = ((long) data[i8 + 0] & 0xff) //
-                     + (((long) data[i8 + 1] & 0xff) << 8) //
-                     + (((long) data[i8 + 2] & 0xff) << 16)//
-                     + (((long) data[i8 + 3] & 0xff) << 24) //
-                     + (((long) data[i8 + 4] & 0xff) << 32)//
-                     + (((long) data[i8 + 5] & 0xff) << 40)//
-                     + (((long) data[i8 + 6] & 0xff) << 48) //
-                     + (((long) data[i8 + 7] & 0xff) << 56);
+    for (int i = 0; i < length8; i++) {
+        final int i8 = i * 8;
+        long k = ((long) data[i8 + 0] & 0xff) //
+                + (((long) data[i8 + 1] & 0xff) << 8) //
+                + (((long) data[i8 + 2] & 0xff) << 16)//
+                + (((long) data[i8 + 3] & 0xff) << 24) //
+                + (((long) data[i8 + 4] & 0xff) << 32)//
+                + (((long) data[i8 + 5] & 0xff) << 40)//
+                + (((long) data[i8 + 6] & 0xff) << 48) //
+                + (((long) data[i8 + 7] & 0xff) << 56);
 
-            k *= m;
-            k ^= k >>> r;
-            k *= m;
+        k *= m;
+        k ^= k >>> r;
+        k *= m;
 
-            h ^= k;
-            h *= m;
-        }
-
-        switch (length % 8) {
-            case 7:
-                h ^= (long) (data[(length & ~7) + 6] & 0xff) << 48;
-            case 6:
-                h ^= (long) (data[(length & ~7) + 5] & 0xff) << 40;
-            case 5:
-                h ^= (long) (data[(length & ~7) + 4] & 0xff) << 32;
-            case 4:
-                h ^= (long) (data[(length & ~7) + 3] & 0xff) << 24;
-            case 3:
-                h ^= (long) (data[(length & ~7) + 2] & 0xff) << 16;
-            case 2:
-                h ^= (long) (data[(length & ~7) + 1] & 0xff) << 8;
-            case 1:
-                h ^= (long) (data[length & ~7] & 0xff);
-                h *= m;
-        }
-        ;
-
-        h ^= h >>> r;
+        h ^= k;
         h *= m;
-        h ^= h >>> r;
-
-        return h;
     }
+
+    switch (length % 8) {
+        case 7:
+            h ^= (long) (data[(length & ~7) + 6] & 0xff) << 48;
+        case 6:
+            h ^= (long) (data[(length & ~7) + 5] & 0xff) << 40;
+        case 5:
+            h ^= (long) (data[(length & ~7) + 4] & 0xff) << 32;
+        case 4:
+            h ^= (long) (data[(length & ~7) + 3] & 0xff) << 24;
+        case 3:
+            h ^= (long) (data[(length & ~7) + 2] & 0xff) << 16;
+        case 2:
+            h ^= (long) (data[(length & ~7) + 1] & 0xff) << 8;
+        case 1:
+            h ^= (long) (data[length & ~7] & 0xff);
+            h *= m;
+    }
+    ;
+
+    h ^= h >>> r;
+    h *= m;
+    h ^= h >>> r;
+
+    return h;
+}
 
     public static byte[] md5Bytes(String text) {
         MessageDigest msgDigest = null;
@@ -409,37 +447,15 @@ public class Utils {
     }
 
     public static long fnv_64(String input) {
-        if (input == null) {
-            return 0;
-        }
-
-        long hash = 0xcbf29ce484222325L;
-        for (int i = 0; i < input.length(); ++i) {
-            char c = input.charAt(i);
-            hash ^= c;
-            hash *= 0x100000001b3L;
-        }
-
-        return hash;
+        return FnvHash.fnv1a_64(input);
     }
 
     public static long fnv_64_lower(String key) {
-        long hashCode = 0xcbf29ce484222325L;
-        for (int i = 0; i < key.length(); ++i) {
-            char ch = key.charAt(i);
-            if (ch == '_' || ch == '-') {
-                continue;
-            }
+        return FnvHash.fnv1a_64_lower(key);
+    }
 
-            if (ch >= 'A' && ch <= 'Z') {
-                ch = (char) (ch + 32);
-            }
-
-            hashCode ^= ch;
-            hashCode *= 0x100000001b3L;
-        }
-
-        return hashCode;
+    public static long fnv_32_lower(String key) {
+        return FnvHash.fnv_32_lower(key);
     }
 
     public static void loadFromFile(String path, Set<String> set) {
@@ -468,4 +484,5 @@ public class Utils {
             JdbcUtils.close(reader);
         }
     }
+
 }

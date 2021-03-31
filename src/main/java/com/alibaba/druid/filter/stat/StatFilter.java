@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group Holding Ltd.
+ * Copyright 1999-2018 Alibaba Group Holding Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.alibaba.druid.DbType;
+import com.alibaba.druid.VERSION;
 import com.alibaba.druid.filter.Filter;
 import com.alibaba.druid.filter.FilterChain;
 import com.alibaba.druid.filter.FilterEventAdapter;
@@ -85,19 +87,23 @@ public class StatFilter extends FilterEventAdapter implements StatFilterMBean {
 
     protected boolean                 logSlowSql                 = false;
 
-    private String                    dbType;
+    private DbType                    dbType;
 
     private boolean                   mergeSql                   = false;
 
     public StatFilter(){
     }
 
-    public String getDbType() {
+    public DbType getDbType() {
         return dbType;
     }
 
-    public void setDbType(String dbType) {
+    public void setDbType(DbType dbType) {
         this.dbType = dbType;
+    }
+
+    public void setDbType(String dbType) {
+        this.dbType = DbType.of(dbType);
     }
 
     public long getSlowSqlMillis() {
@@ -138,14 +144,18 @@ public class StatFilter extends FilterEventAdapter implements StatFilterMBean {
     }
 
     public String mergeSql(String sql, String dbType) {
+        return mergeSql(sql, DbType.of(dbType));
+    }
+
+    public String mergeSql(String sql, DbType dbType) {
         if (!mergeSql) {
             return sql;
         }
 
         try {
-            sql = ParameterizedOutputVisitorUtils.parameterize(sql, dbType);
+            sql = ParameterizedOutputVisitorUtils.parameterize(sql, dbType, null, null, null);
         } catch (Exception e) {
-            LOG.error("merge sql error, dbType " + dbType + ", sql : " + sql, e);
+            LOG.error("merge sql error, dbType " + dbType + ", druid-" + VERSION.getVersionNumber() + ", sql : " + sql, e);
         }
 
         return sql;
@@ -155,8 +165,8 @@ public class StatFilter extends FilterEventAdapter implements StatFilterMBean {
     public void init(DataSourceProxy dataSource) {
         lock.lock();
         try {
-            if (this.dbType == null || this.dbType.trim().length() == 0) {
-                this.dbType = dataSource.getDbType();
+            if (this.dbType == null) {
+                this.dbType = DbType.of(dataSource.getDbType());
             }
 
             configFromProperties(dataSource.getConnectProperties());
@@ -427,7 +437,13 @@ public class StatFilter extends FilterEventAdapter implements StatFilterMBean {
 
         StatFilterContext.getInstance().executeBefore(sql, inTransaction);
 
-        Profiler.enter(sql, Profiler.PROFILE_TYPE_SQL);
+        String mergedSql;
+        if (sqlStat != null) {
+            mergedSql = sqlStat.getSql();
+        } else {
+            mergedSql = sql;
+        }
+        Profiler.enter(mergedSql, Profiler.PROFILE_TYPE_SQL);
     }
 
     private final void internalAfterStatementExecute(StatementProxy statement, boolean firstResult,
@@ -446,7 +462,7 @@ public class StatFilter extends FilterEventAdapter implements StatFilterMBean {
             sqlStat.decrementRunningCount();
             sqlStat.addExecuteTime(statement.getLastExecuteType(), firstResult, nanos);
             statement.setLastExecuteTimeNano(nanos);
-            if ((!statement.isFirstResultSet()) && statement.getLastExecuteType() == StatementExecuteType.Execute) {
+            if ((!firstResult) && statement.getLastExecuteType() == StatementExecuteType.Execute) {
                 try {
                     int updateCount = statement.getUpdateCount();
                     sqlStat.addUpdateCount(updateCount);
@@ -466,9 +482,12 @@ public class StatFilter extends FilterEventAdapter implements StatFilterMBean {
                 String slowParameters = buildSlowParameters(statement);
                 sqlStat.setLastSlowParameters(slowParameters);
 
+                String lastExecSql = statement.getLastExecuteSql();
                 if (logSlowSql) {
-                    LOG.error("slow sql " + millis + " millis. " + statement.getLastExecuteSql() + "" + slowParameters);
+                    LOG.error("slow sql " + millis + " millis. " + lastExecSql + "" + slowParameters);
                 }
+
+                handleSlowSql(statement);
             }
         }
 
@@ -476,6 +495,10 @@ public class StatFilter extends FilterEventAdapter implements StatFilterMBean {
         StatFilterContext.getInstance().executeAfter(sql, nanos, null);
 
         Profiler.release(nanos);
+    }
+
+    protected void handleSlowSql(StatementProxy statementProxy) {
+
     }
 
     @Override
@@ -506,7 +529,7 @@ public class StatFilter extends FilterEventAdapter implements StatFilterMBean {
         Profiler.release(nanos);
     }
 
-    private String buildSlowParameters(StatementProxy statement) {
+    protected String buildSlowParameters(StatementProxy statement) {
         JSONWriter out = new JSONWriter();
 
         out.writeArrayStart();
@@ -625,10 +648,10 @@ public class StatFilter extends FilterEventAdapter implements StatFilterMBean {
         if (contextSql != null && contextSql.length() > 0) {
             return dataSourceStat.createSqlStat(contextSql);
         } else {
-            String dbType = this.dbType;
+            DbType dbType = this.dbType;
 
             if (dbType == null) {
-                dbType = dataSource.getDbType();
+                dbType = DbType.of(dataSource.getDbType());
             }
 
             sql = mergeSql(sql, dbType);
@@ -782,6 +805,21 @@ public class StatFilter extends FilterEventAdapter implements StatFilterMBean {
     }
 
     @Override
+    public <T> T resultSet_getObject(FilterChain chain, ResultSetProxy result, int columnIndex, Class<T> type) throws SQLException {
+        T obj = chain.resultSet_getObject(result, columnIndex, type);
+
+        if (obj instanceof Clob) {
+            clobOpenAfter(chain.getDataSource().getDataSourceStat(), result, (ClobProxy) obj);
+        } else if (obj instanceof Blob) {
+            blobOpenAfter(chain.getDataSource().getDataSourceStat(), result, (Blob) obj);
+        } else if (obj instanceof String) {
+            result.addReadStringLength(((String) obj).length());
+        }
+
+        return obj;
+    }
+
+    @Override
     public Object resultSet_getObject(FilterChain chain, ResultSetProxy result, int columnIndex,
                                       java.util.Map<String, Class<?>> map) throws SQLException {
         Object obj = chain.resultSet_getObject(result, columnIndex, map);
@@ -800,6 +838,21 @@ public class StatFilter extends FilterEventAdapter implements StatFilterMBean {
     @Override
     public Object resultSet_getObject(FilterChain chain, ResultSetProxy result, String columnLabel) throws SQLException {
         Object obj = chain.resultSet_getObject(result, columnLabel);
+
+        if (obj instanceof Clob) {
+            clobOpenAfter(chain.getDataSource().getDataSourceStat(), result, (ClobProxy) obj);
+        } else if (obj instanceof Blob) {
+            blobOpenAfter(chain.getDataSource().getDataSourceStat(), result, (Blob) obj);
+        } else if (obj instanceof String) {
+            result.addReadStringLength(((String) obj).length());
+        }
+
+        return obj;
+    }
+
+    @Override
+    public <T> T resultSet_getObject(FilterChain chain, ResultSetProxy result, String columnLabel, Class<T> type) throws SQLException {
+        T obj = chain.resultSet_getObject(result, columnLabel, type);
 
         if (obj instanceof Clob) {
             clobOpenAfter(chain.getDataSource().getDataSourceStat(), result, (ClobProxy) obj);

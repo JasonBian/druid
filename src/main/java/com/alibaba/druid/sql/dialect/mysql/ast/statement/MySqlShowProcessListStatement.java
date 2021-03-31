@@ -15,23 +15,23 @@
  */
 package com.alibaba.druid.sql.dialect.mysql.ast.statement;
 
+import com.alibaba.druid.sql.ast.statement.SQLShowProcessListStatement;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitor;
+import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
-public class MySqlShowProcessListStatement extends MySqlStatementImpl implements MySqlShowStatement {
+public class MySqlShowProcessListStatement extends SQLShowProcessListStatement implements MySqlShowStatement {
 
-    private boolean full = false;
+    protected void accept0(SQLASTVisitor visitor) {
+        if (visitor instanceof MySqlASTVisitor) {
+            accept0((MySqlASTVisitor) visitor);
+        } else {
+            super.accept0(visitor);
+        }
+    }
 
     public void accept0(MySqlASTVisitor visitor) {
         visitor.visit(this);
         visitor.endVisit(this);
-    }
-
-    public boolean isFull() {
-        return full;
-    }
-
-    public void setFull(boolean full) {
-        this.full = full;
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group Holding Ltd.
+ * Copyright 1999-2018 Alibaba Group Holding Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,14 +42,15 @@ public class DB2SelectTest_10 extends DB2Test {
         DB2StatementParser parser = new DB2StatementParser(sql);
         List<SQLStatement> statementList = parser.parseStatementList();
         SQLStatement stmt = statementList.get(0);
-        print(statementList);
+
+        System.out.println(stmt);
 
         Assert.assertEquals(1, statementList.size());
 
         DB2SchemaStatVisitor visitor = new DB2SchemaStatVisitor();
         stmt.accept(visitor);
 
-//        System.out.println("Tables : " + visitor.getTables());
+        System.out.println("Tables : " + visitor.getTables());
         System.out.println("fields : " + visitor.getColumns());
 //        System.out.println("coditions : " + visitor.getConditions());
 //        System.out.println("orderBy : " + visitor.getOrderByColumns());
@@ -66,7 +67,7 @@ public class DB2SelectTest_10 extends DB2Test {
 
         Assert.assertEquals("SELECT *\n" +
                         "FROM (\n" +
-                        "\tSELECT inner2_.*, ROWNUMBER() OVER (ORDER BY order OF inner2_) AS rownumber_\n" +
+                        "\tSELECT inner2_.*, rownumber() OVER (ORDER BY order OF inner2_) AS rownumber_\n" +
                         "\tFROM (\n" +
                         "\t\tSELECT tsuserstb0_.USERID AS USERID1_1_, tsuserstb0_.CREASTAF AS CREASTAF2_1_, tsuserstb0_.CREATIME AS CREATIME3_1_, tsuserstb0_.LOCORGNO AS LOCORGNO4_1_, tsuserstb0_.PWDMODIFYTIME AS PWDMODIF5_1_\n" +
                         "\t\t\t, tsuserstb0_.REMARK01 AS REMARK6_1_, tsuserstb0_.REMARK02 AS REMARK7_1_, tsuserstb0_.STAORGNO AS STAORGNO8_1_, tsuserstb0_.UPDASTAF AS UPDASTAF9_1_, tsuserstb0_.UPDATIME AS UPDATIM10_1_\n" +

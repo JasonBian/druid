@@ -15,14 +15,16 @@
  */
 package com.alibaba.druid.sql.ast.expr;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.SQLExprImpl;
+import com.alibaba.druid.sql.ast.*;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by wenshao on 14/06/2017.
  */
-public class SQLFlashbackExpr extends SQLExprImpl {
+public class SQLFlashbackExpr extends SQLExprImpl implements SQLReplaceable {
     private Type type;
     private SQLExpr expr;
 
@@ -55,11 +57,27 @@ public class SQLFlashbackExpr extends SQLExprImpl {
     }
 
     @Override
+    public boolean replace(SQLExpr expr, SQLExpr target) {
+        if (this.expr == expr) {
+            setExpr((SQLName) target);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     protected void accept0(SQLASTVisitor visitor) {
         if (visitor.visit(this)) {
-            acceptChild(visitor, expr);
+            if (this.expr != null) {
+                this.expr.accept(visitor);
+            }
         }
         visitor.endVisit(this);
+    }
+
+    @Override
+    public List<SQLObject> getChildren() {
+        return Collections.<SQLObject>singletonList(expr);
     }
 
     public SQLFlashbackExpr clone() {

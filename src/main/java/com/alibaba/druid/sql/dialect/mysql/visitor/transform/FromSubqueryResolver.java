@@ -15,17 +15,16 @@
  */
 package com.alibaba.druid.sql.dialect.mysql.visitor.transform;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.statement.*;
-import com.alibaba.druid.sql.dialect.oracle.ast.stmt.OracleSelectJoin;
 import com.alibaba.druid.sql.dialect.oracle.ast.stmt.OracleSelectSubqueryTableSource;
 import com.alibaba.druid.sql.dialect.oracle.ast.stmt.OracleSelectTableReference;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleASTVisitorAdapter;
-import oracle.sql.SQLName;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -88,7 +87,7 @@ public class FromSubqueryResolver extends OracleASTVisitorAdapter {
             String ident = identifierExpr.getName();
             String mappingIdent = mappings.get(ident);
             if (mappingIdent != null) {
-                identifierExpr.setName(mappingIdent);
+                x.setExpr(new SQLIdentifierExpr(mappingIdent));
             }
         }
         return false;
@@ -115,9 +114,10 @@ public class FromSubqueryResolver extends OracleASTVisitorAdapter {
             stmt.getSubQuery().setWithSubQuery(null);
 
             for (SQLWithSubqueryClause.Entry entry : withSubqueryClause.getEntries()) {
-                String entryName = entry.getName().getName();
+                String entryName = entry.getAlias();
 
                 SQLCreateViewStatement entryStmt = new SQLCreateViewStatement();
+                entryStmt.setOrReplace(true);
                 entryStmt.setDbType(stmt.getDbType());
 
                 String entryViewName = visitor.generateSubViewName();
@@ -133,9 +133,10 @@ public class FromSubqueryResolver extends OracleASTVisitorAdapter {
 
         stmt.accept(visitor);
 
-        String dbType = stmt.getDbType();
+        DbType dbType = stmt.getDbType();
         for (int i = 0; i < targetList.size() - 1; ++i) {
             SQLCreateViewStatement targetStmt = (SQLCreateViewStatement) targetList.get(i);
+            targetStmt.setOrReplace(true);
             targetStmt.setDbType(dbType);
             targetStmt.setAfterSemi(true);
         }

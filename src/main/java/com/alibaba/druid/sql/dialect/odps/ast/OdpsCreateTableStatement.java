@@ -15,35 +15,26 @@
  */
 package com.alibaba.druid.sql.dialect.odps.ast;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLName;
 import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
 import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
+import com.alibaba.druid.sql.dialect.hive.stmt.HiveCreateTableStatement;
 import com.alibaba.druid.sql.dialect.odps.visitor.OdpsASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
-import com.alibaba.druid.util.JdbcConstants;
 
-public class OdpsCreateTableStatement extends SQLCreateTableStatement {
+import java.util.ArrayList;
+import java.util.List;
 
-    private SQLExprTableSource like;
-
-    protected SQLExpr comment;
-
-    protected List<SQLColumnDefinition> partitionColumns = new ArrayList<SQLColumnDefinition>(2);
-
-    protected final List<SQLName> clusteredBy = new ArrayList<SQLName>();
-    protected final List<SQLName> sortedBy = new ArrayList<SQLName>();
-
-    protected int buckets;
-
+public class OdpsCreateTableStatement extends HiveCreateTableStatement {
+    protected final List<SQLExpr> withSerdeproperties = new ArrayList<SQLExpr>();
     protected SQLExpr lifecycle;
+    protected SQLExpr storedBy;
 
     public OdpsCreateTableStatement(){
-        super(JdbcConstants.ODPS);
+        super(DbType.odps);
     }
 
     public SQLExprTableSource getLike() {
@@ -56,14 +47,6 @@ public class OdpsCreateTableStatement extends SQLCreateTableStatement {
 
     public void setLike(SQLExprTableSource like) {
         this.like = like;
-    }
-
-    public SQLExpr getComment() {
-        return comment;
-    }
-
-    public void setComment(SQLExpr comment) {
-        this.comment = comment;
     }
 
     public List<SQLColumnDefinition> getPartitionColumns() {
@@ -86,36 +69,44 @@ public class OdpsCreateTableStatement extends SQLCreateTableStatement {
     }
 
     @Override
-    protected void accept0(SQLASTVisitor visitor) {
-        accept0((OdpsASTVisitor) visitor);
-    }
-
-    protected void accept0(OdpsASTVisitor visitor) {
-        if (visitor.visit(this)) {
-            this.acceptChild(visitor, tableSource);
-            this.acceptChild(visitor, tableElementList);
-            this.acceptChild(visitor, partitionColumns);
-            this.acceptChild(visitor, clusteredBy);
-            this.acceptChild(visitor, sortedBy);
-            this.acceptChild(visitor, lifecycle);
-            this.acceptChild(visitor, select);
+    protected void accept0(SQLASTVisitor v) {
+        if (v instanceof OdpsASTVisitor) {
+            accept0((OdpsASTVisitor) v);
+            return;
         }
-        visitor.endVisit(this);
+
+        super.accept0(v);
     }
 
-    public List<SQLName> getClusteredBy() {
-        return clusteredBy;
+    protected void accept0(OdpsASTVisitor v) {
+        if (v.visit(this)) {
+            acceptChild(v);
+        }
+        v.endVisit(this);
     }
 
-    public List<SQLName> getSortedBy() {
-        return sortedBy;
+    protected void acceptChild(SQLASTVisitor v) {
+        super.acceptChild(v);
+
+        acceptChild(v, withSerdeproperties);
+        acceptChild(v, lifecycle);
+        acceptChild(v, storedBy);
     }
 
-    public int getBuckets() {
-        return buckets;
+    public SQLExpr getStoredBy() {
+        return storedBy;
     }
 
-    public void setBuckets(int buckets) {
-        this.buckets = buckets;
+    public void setStoredBy(SQLExpr x) {
+        if (x != null) {
+            x.setParent(this);
+        }
+        this.storedBy = x;
     }
+
+    public List<SQLExpr> getWithSerdeproperties() {
+        return withSerdeproperties;
+    }
+
+
 }

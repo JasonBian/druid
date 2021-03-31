@@ -15,21 +15,30 @@
  */
 package com.alibaba.druid.sql.ast.statement;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLName;
+import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.SQLStatementImpl;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
-public class SQLAlterDatabaseStatement extends SQLStatementImpl {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-    private SQLName name;
+public class SQLAlterDatabaseStatement extends SQLStatementImpl implements SQLAlterStatement {
+    private SQLName           name;
+    private boolean           upgradeDataDirectoryName;
+    private SQLAlterCharacter character;
 
-    private boolean upgradeDataDirectoryName;
+    private SQLAlterDatabaseItem item;
+
+    private List<SQLAssignItem> properties = new ArrayList<SQLAssignItem>();
     
     public SQLAlterDatabaseStatement() {
         
     }
     
-    public SQLAlterDatabaseStatement(String dbType) {
+    public SQLAlterDatabaseStatement(DbType dbType) {
         this.setDbType(dbType);
     }
 
@@ -42,6 +51,17 @@ public class SQLAlterDatabaseStatement extends SQLStatementImpl {
             name.setParent(this);
         }
         this.name = name;
+    }
+
+    public SQLAlterCharacter getCharacter() {
+        return character;
+    }
+
+    public void setCharacter(SQLAlterCharacter character) {
+        if (character != null) {
+            character.setParent(this);
+        }
+        this.character = character;
     }
 
     public boolean isUpgradeDataDirectoryName() {
@@ -58,5 +78,22 @@ public class SQLAlterDatabaseStatement extends SQLStatementImpl {
             acceptChild(visitor, name);
         }
         visitor.endVisit(this);
+    }
+
+    public SQLAlterDatabaseItem getItem() {
+        return item;
+    }
+
+    public void setItem(SQLAlterDatabaseItem item) {
+        this.item = item;
+    }
+
+    public List<SQLAssignItem> getProperties() {
+        return properties;
+    }
+
+    @Override
+    public List<SQLObject> getChildren() {
+        return Collections.<SQLObject>singletonList(name);
     }
 }

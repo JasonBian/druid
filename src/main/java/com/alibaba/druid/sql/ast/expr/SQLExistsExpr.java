@@ -15,13 +15,15 @@
  */
 package com.alibaba.druid.sql.ast.expr;
 
-import java.io.Serializable;
-
 import com.alibaba.druid.sql.ast.SQLExprImpl;
 import com.alibaba.druid.sql.ast.statement.SQLSelect;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
-public class SQLExistsExpr extends SQLExprImpl implements Serializable {
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
+
+public final class SQLExistsExpr extends SQLExprImpl implements Serializable {
 
     private static final long serialVersionUID = 1L;
     public boolean            not              = false;
@@ -61,10 +63,17 @@ public class SQLExistsExpr extends SQLExprImpl implements Serializable {
 
     protected void accept0(SQLASTVisitor visitor) {
         if (visitor.visit(this)) {
-            acceptChild(visitor, this.subQuery);
+            if (this.subQuery != null) {
+                this.subQuery.accept(visitor);
+            }
         }
 
         visitor.endVisit(this);
+    }
+
+    @Override
+    public List getChildren() {
+        return Collections.singletonList(this.subQuery);
     }
 
     @Override

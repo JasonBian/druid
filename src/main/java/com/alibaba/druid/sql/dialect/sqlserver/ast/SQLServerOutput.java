@@ -15,13 +15,13 @@
  */
 package com.alibaba.druid.sql.dialect.sqlserver.ast;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.dialect.sqlserver.visitor.SQLServerASTVisitor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SQLServerOutput extends SQLServerObjectImpl {
 
@@ -58,4 +58,21 @@ public class SQLServerOutput extends SQLServerObjectImpl {
         return selectList;
     }
 
+    public SQLServerOutput clone() {
+        SQLServerOutput x = new SQLServerOutput();
+        if (into != null) {
+            x.setInto(into.clone());
+        }
+        for (SQLExpr c : columns) {
+            SQLExpr c2 = c.clone();
+            c2.setParent(x);
+            x.columns.add(c2);
+        }
+        for (SQLSelectItem item : selectList) {
+            SQLSelectItem item2 = item.clone();
+            item2.setParent(x);
+            x.selectList.add(item2);
+        }
+        return x;
+    }
 }

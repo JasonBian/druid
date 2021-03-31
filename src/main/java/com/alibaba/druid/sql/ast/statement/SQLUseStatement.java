@@ -15,12 +15,14 @@
  */
 package com.alibaba.druid.sql.ast.statement;
 
-import com.alibaba.druid.sql.ast.SQLName;
-import com.alibaba.druid.sql.ast.SQLStatement;
-import com.alibaba.druid.sql.ast.SQLStatementImpl;
+import com.alibaba.druid.DbType;
+import com.alibaba.druid.sql.ast.*;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
-public class SQLUseStatement extends SQLStatementImpl {
+import java.util.Collections;
+import java.util.List;
+
+public class SQLUseStatement extends SQLStatementImpl implements SQLReplaceable {
 
     private SQLName database;
     
@@ -28,7 +30,7 @@ public class SQLUseStatement extends SQLStatementImpl {
         
     }
     
-    public SQLUseStatement(String dbType) {
+    public SQLUseStatement(DbType dbType) {
         super (dbType);
     }
 
@@ -36,8 +38,11 @@ public class SQLUseStatement extends SQLStatementImpl {
         return database;
     }
 
-    public void setDatabase(SQLName database) {
-        this.database = database;
+    public void setDatabase(SQLName x) {
+        if (x != null) {
+            x.setParent(this);
+        }
+        this.database = x;
     }
 
     @Override
@@ -48,4 +53,18 @@ public class SQLUseStatement extends SQLStatementImpl {
         visitor.endVisit(this);
     }
 
+    @Override
+    public boolean replace(SQLExpr expr, SQLExpr target) {
+        if (this.database == expr) {
+            setDatabase((SQLName) target);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public List<SQLObject> getChildren() {
+        return Collections.<SQLObject>singletonList(database);
+    }
 }

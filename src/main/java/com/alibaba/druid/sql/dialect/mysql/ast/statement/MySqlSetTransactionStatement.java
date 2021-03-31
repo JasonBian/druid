@@ -15,15 +15,21 @@
  */
 package com.alibaba.druid.sql.dialect.mysql.ast.statement;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitor;
 
 public class MySqlSetTransactionStatement extends MySqlStatementImpl {
 
     private Boolean global;
 
-    private String  isolationLevel;
+    private Boolean session;
+    private boolean local;
 
+    private String  isolationLevel;
     private String  accessModel;
+
+    private SQLExpr policy;
 
     public void accept0(MySqlASTVisitor visitor) {
         visitor.visit(this);
@@ -54,4 +60,30 @@ public class MySqlSetTransactionStatement extends MySqlStatementImpl {
         this.accessModel = accessModel;
     }
 
+    public Boolean getSession() {
+        return session;
+    }
+
+    public void setSession(Boolean session) {
+        this.session = session;
+    }
+
+    public boolean isLocal() {
+        return local;
+    }
+
+    public void setLocal(boolean local) {
+        this.local = local;
+    }
+
+    public SQLExpr getPolicy() {
+        return policy;
+    }
+
+    public void setPolicy(SQLExpr x) {
+        if (x != null) {
+            x.setParent(this);
+        }
+        this.policy = x;
+    }
 }

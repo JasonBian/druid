@@ -15,16 +15,14 @@
  */
 package com.alibaba.druid.bvt.sql.mysql.createTable;
 
-import java.util.List;
-
-import org.junit.Assert;
-
 import com.alibaba.druid.sql.MysqlTest;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.stat.TableStat;
-import com.alibaba.druid.stat.TableStat.Column;
+import org.junit.Assert;
+
+import java.util.List;
 
 public class MySqlCreateTableTest18 extends MysqlTest {
 
@@ -58,7 +56,7 @@ public class MySqlCreateTableTest18 extends MysqlTest {
 		statemen.accept(visitor);
 
 //		System.out.println("Tables : " + visitor.getTables());
-//		System.out.println("fields : " + visitor.getColumns());
+		System.out.println("fields : " + visitor.getColumns());
 //		System.out.println("coditions : " + visitor.getConditions());
 //		System.out.println("orderBy : " + visitor.getOrderByColumns());
 
@@ -69,6 +67,6 @@ public class MySqlCreateTableTest18 extends MysqlTest {
 		Assert.assertTrue(visitor.getTables().containsKey(
 				new TableStat.Name("t_awards")));
 
-		Assert.assertTrue(visitor.getColumns().contains(new Column("t_awards", "f_type")));
+		Assert.assertTrue(visitor.containsColumn("t_awards", "f_type"));
 	}
 }

@@ -15,14 +15,13 @@
  */
 package com.alibaba.druid.bvt.sql.mysql.createTable;
 
-import org.junit.Assert;
-
 import com.alibaba.druid.sql.MysqlTest;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.stat.TableStat;
+import org.junit.Assert;
 
 public class MySqlCreateTableTest48 extends MysqlTest {
 
@@ -39,16 +38,18 @@ public class MySqlCreateTableTest48 extends MysqlTest {
         MySqlStatementParser parser = new MySqlStatementParser(sql);
         SQLStatement stmt = parser.parseCreateTable();
 
+        System.out.println(stmt);
+
         MySqlSchemaStatVisitor visitor = new MySqlSchemaStatVisitor();
         stmt.accept(visitor);
 
-//        System.out.println("Tables : " + visitor.getTables());
-//        System.out.println("fields : " + visitor.getColumns());
+        System.out.println("Tables : " + visitor.getTables());
+        System.out.println("fields : " + visitor.getColumns());
 //        System.out.println("coditions : " + visitor.getConditions());
 //        System.out.println("orderBy : " + visitor.getOrderByColumns());
 
         Assert.assertEquals(3, visitor.getTables().size());
-        Assert.assertEquals(6, visitor.getColumns().size());
+        Assert.assertEquals(5, visitor.getColumns().size());
         Assert.assertEquals(0, visitor.getConditions().size());
 
         Assert.assertTrue(visitor.getTables().containsKey(new TableStat.Name("AO_E8B6CC_REPO_TO_CHANGESET")));

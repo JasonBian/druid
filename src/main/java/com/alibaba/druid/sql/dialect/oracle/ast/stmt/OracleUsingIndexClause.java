@@ -15,13 +15,13 @@
  */
 package com.alibaba.druid.sql.dialect.oracle.ast.stmt;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLName;
+import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.SQLPartition;
+import com.alibaba.druid.sql.ast.statement.SQLCreateIndexStatement;
+import com.alibaba.druid.sql.ast.statement.SQLCreateStatement;
 import com.alibaba.druid.sql.dialect.oracle.ast.OracleSQLObject;
-import com.alibaba.druid.sql.dialect.oracle.ast.OracleSQLObjectImpl;
 import com.alibaba.druid.sql.dialect.oracle.ast.OracleSegmentAttributesImpl;
-import com.alibaba.druid.sql.dialect.oracle.ast.clause.OracleStorageClause;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
@@ -30,8 +30,7 @@ import java.util.List;
 
 public class OracleUsingIndexClause extends OracleSegmentAttributesImpl implements OracleSQLObject {
 
-    private SQLName             index;
-
+    private SQLObject           index;
     private Boolean             enable            = null;
 
     private boolean             computeStatistics = false;
@@ -73,12 +72,22 @@ public class OracleUsingIndexClause extends OracleSegmentAttributesImpl implemen
         this.computeStatistics = computeStatistics;
     }
 
-    public SQLName getIndex() {
+    public SQLObject getIndex() {
         return index;
     }
 
-    public void setIndex(SQLName index) {
-        this.index = index;
+    public void setIndex(SQLName x) {
+        if (x != null) {
+            x.setParent(this);
+        }
+        this.index = x;
+    }
+
+    public void setIndex(SQLCreateIndexStatement x) {
+        if (x != null) {
+            x.setParent(this);
+        }
+        this.index = x;
     }
 
     public boolean isReverse() {
@@ -91,5 +100,29 @@ public class OracleUsingIndexClause extends OracleSegmentAttributesImpl implemen
 
     public List<SQLPartition> getLocalPartitionIndex() {
         return localPartitionIndex;
+    }
+
+    public void cloneTo(OracleUsingIndexClause x) {
+        super.cloneTo(x);
+        if (index != null) {
+            SQLObject idx = index.clone();
+            idx.setParent(x);
+            x.index = idx;
+        }
+        x.enable = enable;
+        x.computeStatistics = computeStatistics;
+        x.reverse = reverse;
+
+        for (SQLPartition p : localPartitionIndex) {
+            SQLPartition p2 = p.clone();
+            p2.setParent(x);
+            x.localPartitionIndex.add(p2);
+        }
+    }
+
+    public OracleUsingIndexClause clone() {
+        OracleUsingIndexClause x = new OracleUsingIndexClause();
+        cloneTo(x);
+        return x;
     }
 }

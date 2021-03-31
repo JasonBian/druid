@@ -44,11 +44,11 @@ public abstract class OracleSegmentAttributesImpl extends SQLObjectImpl implemen
         return tablespace;
     }
 
-    public void setTablespace(SQLName tablespace) {
-        if (tablespace != null) {
-            tablespace.setParent(this);
+    public void setTablespace(SQLName x) {
+        if (x != null) {
+            x.setParent(this);
         }
-        this.tablespace = tablespace;
+        this.tablespace = x;
     }
 
     public Boolean getCompress() {
@@ -145,5 +145,29 @@ public abstract class OracleSegmentAttributesImpl extends SQLObjectImpl implemen
 
     public void setCompressForOltp(boolean compressForOltp) {
         this.compressForOltp = compressForOltp;
+    }
+
+    public void cloneTo(OracleSegmentAttributesImpl x) {
+        x.pctfree = pctfree;
+        x.pctused = pctused;
+        x.initrans = initrans;
+
+        x.maxtrans = maxtrans;
+        x.pctincrease = pctincrease;
+        x.freeLists = freeLists;
+        x.compress = compress;
+        x.compressLevel = compressLevel;
+        x.compressForOltp = compressForOltp;
+        x.pctthreshold = pctthreshold;
+
+        x.logging = logging;
+
+        if (tablespace != null) {
+            x.setTablespace(tablespace.clone());
+        }
+
+        if (storage != null) {
+            x.setStorage(storage.clone());
+        }
     }
 }

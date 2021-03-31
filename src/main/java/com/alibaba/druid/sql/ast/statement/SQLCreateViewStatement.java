@@ -15,20 +15,19 @@
  */
 package com.alibaba.druid.sql.ast.statement;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.SQLName;
-import com.alibaba.druid.sql.ast.SQLObjectImpl;
-import com.alibaba.druid.sql.ast.SQLStatementImpl;
+import com.alibaba.druid.sql.ast.*;
 import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLLiteralExpr;
+import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
-public class SQLCreateViewStatement extends SQLStatementImpl implements SQLDDLStatement {
+import java.util.ArrayList;
+import java.util.List;
+
+public class SQLCreateViewStatement extends SQLStatementImpl implements SQLCreateStatement {
 
     private boolean     orReplace   = false;
     private boolean     force       = false;
@@ -55,7 +54,7 @@ public class SQLCreateViewStatement extends SQLStatementImpl implements SQLDDLSt
 
     }
 
-    public SQLCreateViewStatement(String dbType){
+    public SQLCreateViewStatement(DbType dbType){
         super(dbType);
     }
 
@@ -68,6 +67,19 @@ public class SQLCreateViewStatement extends SQLStatementImpl implements SQLDDLSt
         if (expr instanceof SQLName) {
             String name = ((SQLName) expr).getSimpleName();
             return SQLUtils.normalize(name);
+        }
+
+        return null;
+    }
+
+    public String getSchema() {
+        SQLName name = getName();
+        if (name == null) {
+            return null;
+        }
+
+        if (name instanceof SQLPropertyExpr) {
+            return ((SQLPropertyExpr) name).getOwnernName();
         }
 
         return null;
@@ -219,12 +231,41 @@ public class SQLCreateViewStatement extends SQLStatementImpl implements SQLDDLSt
     @Override
     protected void accept0(SQLASTVisitor visitor) {
         if (visitor.visit(this)) {
-            acceptChild(visitor, this.tableSource);
-            acceptChild(visitor, this.columns);
-            acceptChild(visitor, this.comment);
-            acceptChild(visitor, this.subQuery);
+            if (tableSource != null) {
+                tableSource.accept(visitor);
+            }
+
+            for (int i = 0; i < columns.size(); i++) {
+                final SQLTableElement column = columns.get(i);
+                if (column != null) {
+                    column.accept(visitor);
+                }
+            }
+
+            if (comment != null) {
+                comment.accept(visitor);
+            }
+
+            if (subQuery != null) {
+                subQuery.accept(visitor);
+            }
         }
         visitor.endVisit(this);
+    }
+
+    public List<SQLObject> getChildren() {
+        List<SQLObject> children = new ArrayList<SQLObject>();
+        if (tableSource != null) {
+            children.add(tableSource);
+        }
+        children.addAll(this.columns);
+        if (comment != null) {
+            children.add(comment);
+        }
+        if (subQuery != null) {
+            children.add(subQuery);
+        }
+        return children;
     }
 
     public static enum Level {
@@ -265,5 +306,41 @@ public class SQLCreateViewStatement extends SQLStatementImpl implements SQLDDLSt
                 acceptChild(visitor, comment);
             }
         }
+    }
+
+
+    public SQLCreateViewStatement clone() {
+        SQLCreateViewStatement x = new SQLCreateViewStatement();
+
+        x.orReplace = orReplace;
+        x.force = force;
+        if (subQuery != null) {
+            x.setSubQuery(subQuery.clone());
+        }
+        x.ifNotExists = ifNotExists;
+
+        x.algorithm = algorithm;
+        if (definer != null) {
+            x.setDefiner(definer.clone());
+        }
+        x.sqlSecurity = sqlSecurity;
+        if (tableSource != null) {
+            x.setTableSource(tableSource.clone());
+        }
+        for (SQLTableElement column : columns) {
+            SQLTableElement column2 = column.clone();
+            column2.setParent(x);
+            x.columns.add(column2);
+        }
+        x.withCheckOption = withCheckOption;
+        x.withCascaded = withCascaded;
+        x.withLocal = withLocal;
+        x.withReadOnly = withReadOnly;
+
+        if (comment != null) {
+            x.setComment(comment.clone());
+        }
+
+        return x;
     }
 }

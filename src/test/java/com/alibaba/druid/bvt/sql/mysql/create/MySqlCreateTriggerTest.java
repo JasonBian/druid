@@ -15,13 +15,12 @@
  */
 package com.alibaba.druid.bvt.sql.mysql.create;
 
-import java.util.List;
-
-import org.junit.Assert;
-
 import com.alibaba.druid.sql.MysqlTest;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
+import org.junit.Assert;
+
+import java.util.List;
 
 public class MySqlCreateTriggerTest extends MysqlTest {
 

@@ -16,9 +16,13 @@
 package com.alibaba.druid.sql.dialect.oracle.ast.expr;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.SQLObjectImpl;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
+
+import java.util.Collections;
+import java.util.List;
 
 public class OracleAnalyticWindowing extends SQLObjectImpl implements OracleExpr {
 
@@ -46,6 +50,9 @@ public class OracleAnalyticWindowing extends SQLObjectImpl implements OracleExpr
     }
 
     public void setExpr(SQLExpr expr) {
+        if (expr != null) {
+            expr.setParent(this);
+        }
         this.expr = expr;
     }
 
@@ -57,16 +64,22 @@ public class OracleAnalyticWindowing extends SQLObjectImpl implements OracleExpr
         this.type = type;
     }
 
+    @Override
     public OracleAnalyticWindowing clone() {
         OracleAnalyticWindowing x = new OracleAnalyticWindowing();
         x.type = type;
         if (expr != null) {
-            this.setExpr(expr.clone());
+            x.setExpr(expr.clone());
         }
         return x;
     }
 
     public static enum Type {
         ROWS, RANGE;
+    }
+
+    @Override
+    public List<SQLObject> getChildren() {
+        return Collections.<SQLObject>singletonList(this.expr);
     }
 }

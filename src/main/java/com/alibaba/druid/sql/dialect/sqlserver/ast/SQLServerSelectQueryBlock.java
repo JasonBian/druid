@@ -15,7 +15,7 @@
  */
 package com.alibaba.druid.sql.dialect.sqlserver.ast;
 
-import com.alibaba.druid.sql.ast.SQLLimit;
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.sqlserver.visitor.SQLServerASTVisitor;
@@ -24,6 +24,10 @@ import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 public class SQLServerSelectQueryBlock extends SQLSelectQueryBlock {
 
     private SQLServerTop top;
+
+    public SQLServerSelectQueryBlock() {
+        dbType = DbType.sqlserver;
+    }
 
     public SQLServerTop getTop() {
         return top;
@@ -42,7 +46,11 @@ public class SQLServerSelectQueryBlock extends SQLSelectQueryBlock {
 
     @Override
     protected void accept0(SQLASTVisitor visitor) {
-        accept0((SQLServerASTVisitor) visitor);
+        if (visitor instanceof SQLServerASTVisitor) {
+            accept0((SQLServerASTVisitor) visitor);
+        } else {
+            super.accept0(visitor);
+        }
     }
 
     protected void accept0(SQLServerASTVisitor visitor) {

@@ -15,16 +15,24 @@
  */
 package com.alibaba.druid.sql.ast.statement;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.alibaba.druid.sql.ast.SQLName;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SQLColumnReference extends SQLConstraintImpl implements SQLColumnConstraint {
 
     private SQLName       table;
     private List<SQLName> columns = new ArrayList<SQLName>();
+
+    private SQLForeignKeyImpl.Match referenceMatch;
+    protected SQLForeignKeyImpl.Option onUpdate;
+    protected SQLForeignKeyImpl.Option onDelete;
+
+    public SQLColumnReference() {
+
+    }
 
     @Override
     protected void accept0(SQLASTVisitor visitor) {
@@ -65,7 +73,34 @@ public class SQLColumnReference extends SQLConstraintImpl implements SQLColumnCo
             x.columns.add(columnCloned);
         }
 
+        x.referenceMatch = referenceMatch;
+        x.onUpdate = onUpdate;
+        x.onDelete = onDelete;
+
         return x;
     }
 
+    public SQLForeignKeyImpl.Match getReferenceMatch() {
+        return referenceMatch;
+    }
+
+    public void setReferenceMatch(SQLForeignKeyImpl.Match referenceMatch) {
+        this.referenceMatch = referenceMatch;
+    }
+
+    public SQLForeignKeyImpl.Option getOnUpdate() {
+        return onUpdate;
+    }
+
+    public void setOnUpdate(SQLForeignKeyImpl.Option onUpdate) {
+        this.onUpdate = onUpdate;
+    }
+
+    public SQLForeignKeyImpl.Option getOnDelete() {
+        return onDelete;
+    }
+
+    public void setOnDelete(SQLForeignKeyImpl.Option onDelete) {
+        this.onDelete = onDelete;
+    }
 }

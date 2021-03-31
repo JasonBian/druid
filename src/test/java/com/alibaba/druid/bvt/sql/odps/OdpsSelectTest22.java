@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group Holding Ltd.
+ * Copyright 1999-2018 Alibaba Group Holding Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,18 +55,18 @@ public class OdpsSelectTest22 extends TestCase {
                 "where UT.ad_clk > 0 or CLK.clk > 0\n" +
                 ") A\n" +
                 "group by bucket_id;";//
-        assertEquals("SELECT bucket_id, SUM(pv) AS pv, SUM(clk) AS clk\n" +
-                "\t, SUM(clk) / (SUM(pv) + 1E-10) AS ctr\n" +
-                "\t, SUM(ut_ad_clk) AS ut_ad_clk, SUM(ad_clk) AS ad_clk\n" +
-                "\t, SUM(cost) AS cost\n" +
-                "\t, SUM(cost) * 1000 / (SUM(pv) + 1E-10) / 100 AS rpm\n" +
+        assertEquals("SELECT bucket_id, sum(pv) AS pv, sum(clk) AS clk\n" +
+                "\t, sum(clk) / (sum(pv) + 1e-10) AS ctr\n" +
+                "\t, sum(ut_ad_clk) AS ut_ad_clk, sum(ad_clk) AS ad_clk\n" +
+                "\t, sum(cost) AS cost\n" +
+                "\t, sum(cost) * 1000 / (sum(pv) + 1e-10) / 100 AS rpm\n" +
                 "FROM (\n" +
                 "\tSELECT bucket_id, UT.pv AS pv, UT.clk AS clk, UT.ad_clk AS ut_ad_clk, CLK.clk AS ad_clk\n" +
                 "\t\t, CLK.cost AS cost\n" +
                 "\tFROM (\n" +
-                "\t\tSELECT item_id, pv_id, SUM(pv) AS pv\n" +
-                "\t\t\t, SUM(clk) AS clk\n" +
-                "\t\t\t, SUM(IF(str_to_map(args, ',', '=')['sid'] IS NOT NULL, clk, 0)) AS ad_clk\n" +
+                "\t\tSELECT item_id, pv_id, sum(pv) AS pv\n" +
+                "\t\t\t, sum(clk) AS clk\n" +
+                "\t\t\t, sum(IF(str_to_map(args, ',', '=')['sid'] IS NOT NULL, clk, 0)) AS ad_clk\n" +
                 "\t\t\t, str_to_map(args, ',', '=')['sid'] AS ad_session, split_part(str_to_map(args, ',', '=')['scm'], '.', 2) AS bucket_id\n" +
                 "\t\tFROM alimama_algo.fund_mlr_n_chicago_user_track_distinct_shark\n" +
                 "\t\tWHERE ds = 20170627\n" +
@@ -95,10 +95,10 @@ public class OdpsSelectTest22 extends TestCase {
                 "GROUP BY bucket_id;", SQLUtils.formatOdps(sql));
 
         assertEquals("select bucket_id, sum(pv) as pv, sum(clk) as clk\n" +
-                "\t, sum(clk) / (sum(pv) + 1E-10) as ctr\n" +
+                "\t, sum(clk) / (sum(pv) + 1e-10) as ctr\n" +
                 "\t, sum(ut_ad_clk) as ut_ad_clk, sum(ad_clk) as ad_clk\n" +
                 "\t, sum(cost) as cost\n" +
-                "\t, sum(cost) * 1000 / (sum(pv) + 1E-10) / 100 as rpm\n" +
+                "\t, sum(cost) * 1000 / (sum(pv) + 1e-10) / 100 as rpm\n" +
                 "from (\n" +
                 "\tselect bucket_id, UT.pv as pv, UT.clk as clk, UT.ad_clk as ut_ad_clk, CLK.clk as ad_clk\n" +
                 "\t\t, CLK.cost as cost\n" +
@@ -136,6 +136,8 @@ public class OdpsSelectTest22 extends TestCase {
         List<SQLStatement> statementList = SQLUtils.parseStatements(sql, JdbcConstants.ODPS);
         SQLStatement stmt = statementList.get(0);
 
+        System.out.println(stmt);
+
         assertEquals(1, statementList.size());
         
         SchemaStatVisitor visitor = SQLUtils.createSchemaStatVisitor(JdbcConstants.ODPS);
@@ -143,16 +145,16 @@ public class OdpsSelectTest22 extends TestCase {
         
 //        System.out.println("Tables : " + visitor.getTables());
       System.out.println("fields : " + visitor.getColumns());
-//      System.out.println("coditions : " + visitor.getConditions());
-//      System.out.println("orderBy : " + visitor.getOrderByColumns());
+      System.out.println("coditions : " + visitor.getConditions());
+      System.out.println("orderBy : " + visitor.getOrderByColumns());
         
         assertEquals(2, visitor.getTables().size());
-        assertEquals(17, visitor.getColumns().size());
+        assertEquals(15, visitor.getColumns().size());
         assertEquals(6, visitor.getConditions().size());
 
         System.out.println(SQLUtils.formatOdps(sql));
         
-//        assertTrue(visitor.getColumns().contains(new Column("abc", "name")));
+        assertTrue(visitor.containsColumn("alimama_algo.fund_mlr_n_chicago_user_track_distinct_shark", "item_id"));
     }
 
 

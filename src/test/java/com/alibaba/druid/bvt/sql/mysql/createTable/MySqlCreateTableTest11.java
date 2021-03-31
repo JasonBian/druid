@@ -15,17 +15,15 @@
  */
 package com.alibaba.druid.bvt.sql.mysql.createTable;
 
-import java.util.List;
-
-import org.junit.Assert;
-
 import com.alibaba.druid.sql.MysqlTest;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.stat.TableStat;
-import com.alibaba.druid.stat.TableStat.Column;
+import org.junit.Assert;
+
+import java.util.List;
 
 public class MySqlCreateTableTest11 extends MysqlTest {
 
@@ -59,9 +57,9 @@ public class MySqlCreateTableTest11 extends MysqlTest {
 
         Assert.assertTrue(visitor.getTables().containsKey(new TableStat.Name("tmall_campaign")));
 
-        Assert.assertTrue(visitor.getColumns().contains(new Column("tmall_campaign", "id")));
-        Assert.assertTrue(visitor.getColumns().contains(new Column("tmall_campaign", "campaign_name")));
-        Assert.assertTrue(visitor.getColumns().contains(new Column("tmall_campaign", "create_date")));
-        Assert.assertTrue(visitor.getColumns().contains(new Column("tmall_campaign", "delete_flag")));
+        Assert.assertTrue(visitor.containsColumn("tmall_campaign", "id"));
+        Assert.assertTrue(visitor.containsColumn("tmall_campaign", "campaign_name"));
+        Assert.assertTrue(visitor.containsColumn("tmall_campaign", "create_date"));
+        Assert.assertTrue(visitor.containsColumn("tmall_campaign", "delete_flag"));
     }
 }

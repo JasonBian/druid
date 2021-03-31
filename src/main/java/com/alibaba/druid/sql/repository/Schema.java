@@ -18,51 +18,85 @@ package com.alibaba.druid.sql.repository;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLName;
-import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
 import com.alibaba.druid.sql.ast.expr.SQLAllColumnExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
 import com.alibaba.druid.sql.ast.statement.*;
-import com.alibaba.druid.sql.dialect.oracle.ast.stmt.OracleCreateTableStatement;
-import com.alibaba.druid.sql.dialect.oracle.visitor.OracleASTVisitorAdapter;
+import com.alibaba.druid.util.FnvHash;
+import com.alibaba.druid.util.StringUtils;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by wenshao on 21/07/2017.
  */
 public class Schema {
-    private String name;
+    private         String                  catalog;
+    private         String                  name;
+    protected final Map<Long, SchemaObject> objects    = new ConcurrentHashMap<Long, SchemaObject>(16, 0.75f, 1);
+    protected final Map<Long, SchemaObject> functions  = new ConcurrentHashMap<Long, SchemaObject>(16, 0.75f, 1);
+    private         SchemaRepository        repository;
 
-    protected final Map<String, SchemaObject> objects = new ConcurrentSkipListMap<String, SchemaObject>();
+    protected Schema(SchemaRepository repository) {
+        this(repository, null);
+    }
 
-    private final Map<String, SchemaObject> functions  = new ConcurrentSkipListMap<String, SchemaObject>();
-
-    private final Schema.SchemaVisitor visitor = new Schema.SchemaVisitor();
-
-    private SchemaRepository repository;
-
-    public Schema(SchemaRepository repository) {
+    protected Schema(SchemaRepository repository, String name) {
         this.repository = repository;
+        this.setName(name);
+    }
+
+    protected Schema(SchemaRepository repository, String catalog, String name) {
+        this.repository = repository;
+        this.catalog = catalog;
+        this.name = name;
+    }
+
+    public SchemaRepository getRepository() {
+        return repository;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getSimpleName() {
+        if (name != null) {
+            int p = name.indexOf('.');
+            if (p != -1) {
+                SQLExpr expr = SQLUtils.toSQLExpr(name, repository.dbType);
+                if (expr instanceof SQLPropertyExpr) {
+                    return ((SQLPropertyExpr) expr).getSimpleName();
+                } else {
+                    return name.substring(p + 1);
+                }
+            } else {
+                return name;
+            }
+        }
+        return null;
     }
 
+    public void setName(String name) {
+        this.name = name;
 
+        if (name != null && name.indexOf('.') != -1) {
+            SQLExpr expr = SQLUtils.toSQLExpr(name, repository.dbType);
+            if (expr instanceof SQLPropertyExpr) {
+                catalog = ((SQLPropertyExpr) expr).getOwnernName();
+            }
+        }
+    }
 
     public SchemaObject findTable(String tableName) {
-        String lowerName = tableName.toLowerCase();
-        SchemaObject object = objects.get(lowerName);
+        long hashCode64 = FnvHash.hashCode64(tableName);
+        return findTable(hashCode64);
+    }
+
+    public SchemaObject findTable(long nameHashCode64) {
+        SchemaObject object = objects.get(nameHashCode64);
 
         if (object != null && object.getType() == SchemaObjectType.Table) {
             return object;
@@ -71,9 +105,28 @@ public class Schema {
         return null;
     }
 
+    public SchemaObject findView(String viewName) {
+        long hashCode64 = FnvHash.hashCode64(viewName);
+        return findView(hashCode64);
+    }
+
+    public SchemaObject findView(long nameHashCode64) {
+        SchemaObject object = objects.get(nameHashCode64);
+
+        if (object != null && object.getType() == SchemaObjectType.View) {
+            return object;
+        }
+
+        return null;
+    }
+
     public SchemaObject findTableOrView(String tableName) {
-        String lowerName = tableName.toLowerCase();
-        SchemaObject object = objects.get(lowerName);
+        long hashCode64 = FnvHash.hashCode64(tableName);
+        return findTableOrView(hashCode64);
+    }
+
+    public SchemaObject findTableOrView(long hashCode64) {
+        SchemaObject object = objects.get(hashCode64);
 
         if (object == null) {
             return null;
@@ -88,96 +141,22 @@ public class Schema {
     }
 
     public SchemaObject findFunction(String functionName) {
+        functionName = SQLUtils.normalize(functionName);
         String lowerName = functionName.toLowerCase();
         return functions.get(lowerName);
     }
 
-    public void acceptDDL(String ddl, String dbType) {
-        List<SQLStatement> stmtList = SQLUtils.parseStatements(ddl, dbType);
-        for (SQLStatement stmt : stmtList) {
-            accept(stmt);
-        }
-    }
-
-    public void accept(SQLStatement stmt) {
-        stmt.accept(visitor);
-    }
-
     public boolean isSequence(String name) {
-        SchemaObject object = objects.get(name);
+        long nameHashCode64 = FnvHash.hashCode64(name);
+        SchemaObject object = objects.get(nameHashCode64);
         return object != null
                 && object.getType() == SchemaObjectType.Sequence;
     }
 
-    public class SchemaVisitor extends OracleASTVisitorAdapter {
-
-        public boolean visit(SQLDropSequenceStatement x) {
-            String name = x.getName().getSimpleName();
-            objects.remove(name);
-            return false;
-        }
-
-        public boolean visit(SQLCreateSequenceStatement x) {
-            String name = x.getName().getSimpleName();
-            SchemaObject object = new SchemaObjectImpl(name, SchemaObjectType.Sequence);
-
-            objects.put(name.toLowerCase(), object);
-            return false;
-        }
-
-        public boolean visit(OracleCreateTableStatement x) {
-            visit((SQLCreateTableStatement) x);
-            return false;
-        }
-
-        public boolean visit(SQLCreateTableStatement x) {
-            String name = x.computeName();
-            SchemaObject object = new SchemaObjectImpl(name, SchemaObjectType.Table, x);
-
-            String name_lower = name.toLowerCase();
-            if (objects.containsKey(name_lower)) {
-                return false;
-            }
-            objects.put(name_lower, object);
-
-            return false;
-        }
-
-        public boolean visit(SQLCreateViewStatement x) {
-            String name = x.computeName();
-            SchemaObject object = new SchemaObjectImpl(name, SchemaObjectType.View, x);
-
-            String name_lower = name.toLowerCase();
-            if (objects.containsKey(name_lower)) {
-                return false;
-            }
-            objects.put(name_lower, object);
-
-            return false;
-        }
-
-        public boolean visit(SQLCreateIndexStatement x) {
-            String name = x.getName().getSimpleName();
-            SchemaObject object = new SchemaObjectImpl(name, SchemaObjectType.Index);
-
-            objects.put(name.toLowerCase(), object);
-
-            return false;
-        }
-
-        public boolean visit(SQLCreateFunctionStatement x) {
-            String name = x.getName().getSimpleName();
-            SchemaObject object = new SchemaObjectImpl(name, SchemaObjectType.Function, x);
-
-            functions.put(name.toLowerCase(), object);
-
-            return false;
-        }
-    }
 
     public SchemaObject findTable(SQLTableSource tableSource, String alias) {
         if (tableSource instanceof SQLExprTableSource) {
-            if (alias.equalsIgnoreCase(tableSource.computeAlias())) {
+            if (StringUtils.equalsIgnoreCase(alias, tableSource.computeAlias())) {
                 SQLExprTableSource exprTableSource = (SQLExprTableSource) tableSource;
 
                 SchemaObject tableObject = exprTableSource.getSchemaObject();
@@ -187,9 +166,9 @@ public class Schema {
 
                 SQLExpr expr = exprTableSource.getExpr();
                 if (expr instanceof SQLIdentifierExpr) {
-                    String tableName = ((SQLIdentifierExpr) expr).getName();
+                    long tableNameHashCode64 = ((SQLIdentifierExpr) expr).nameHashCode64();
 
-                    tableObject = findTable(tableName);
+                    tableObject = findTable(tableNameHashCode64);
                     if (tableObject != null) {
                         exprTableSource.setSchemaObject(tableObject);
                     }
@@ -197,9 +176,9 @@ public class Schema {
                 }
 
                 if (expr instanceof SQLPropertyExpr) {
-                    String tableName = ((SQLPropertyExpr) expr).getName();
+                    long tableNameHashCode64 = ((SQLPropertyExpr) expr).nameHashCode64();
 
-                    tableObject = findTable(tableName);
+                    tableObject = findTable(tableNameHashCode64);
                     if (tableObject != null) {
                         exprTableSource.setSchemaObject(tableObject);
                     }
@@ -315,11 +294,12 @@ public class Schema {
 
             SQLExpr expr = exprTableSource.getExpr();
             if (expr instanceof SQLIdentifierExpr) {
+                long tableNameHashCode64 = ((SQLIdentifierExpr) expr).nameHashCode64();
                 String tableName = ((SQLIdentifierExpr) expr).getName();
 
                 SchemaObject table = exprTableSource.getSchemaObject();
                 if (table == null) {
-                    table = findTable(tableName);
+                    table = findTable(tableNameHashCode64);
 
                     if (table != null) {
                         exprTableSource.setSchemaObject(table);
@@ -356,8 +336,8 @@ public class Schema {
         return count;
     }
 
-    public Map<String, SchemaObject> getObjects() {
-        return this.objects;
+    public Collection<SchemaObject> getObjects() {
+        return this.objects.values();
     }
 
     public int getViewCount() {
@@ -368,5 +348,20 @@ public class Schema {
             }
         }
         return count;
+    }
+
+    public List<String> showTables() {
+        List<String> tables = new ArrayList<String>(objects.size());
+        for (SchemaObject object : objects.values()) {
+            if (object.getType() == SchemaObjectType.Table) {
+                tables.add(object.getName());
+            }
+        }
+        Collections.sort(tables);
+        return tables;
+    }
+
+    public String getCatalog() {
+        return catalog;
     }
 }

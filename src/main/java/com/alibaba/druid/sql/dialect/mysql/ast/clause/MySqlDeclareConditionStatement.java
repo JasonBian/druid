@@ -18,6 +18,7 @@ package com.alibaba.druid.sql.dialect.mysql.ast.clause;
 
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlStatementImpl;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitor;
+
 /**
  * 
  * @author zhujun [455910092@qq.com]

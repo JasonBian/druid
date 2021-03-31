@@ -21,7 +21,9 @@ import com.alibaba.druid.sql.ast.SQLDataTypeImpl;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
+import com.alibaba.druid.util.FnvHash;
 
+import java.sql.Types;
 import java.util.List;
 
 public class SQLCharacterDataType extends SQLDataTypeImpl {
@@ -39,6 +41,10 @@ public class SQLCharacterDataType extends SQLDataTypeImpl {
 
     public SQLCharacterDataType(String name){
         super(name);
+    }
+
+    public SQLCharacterDataType(String name, int precision){
+        super(name, precision);
     }
 
     public String getCharSetName() {
@@ -95,7 +101,12 @@ public class SQLCharacterDataType extends SQLDataTypeImpl {
     @Override
     protected void accept0(SQLASTVisitor visitor) {
         if (visitor.visit(this)) {
-            acceptChild(visitor, this.arguments);
+            for (int i = 0; i < arguments.size(); i++) {
+                SQLExpr arg = arguments.get(i);
+                if (arg != null) {
+                    arg.accept(visitor);
+                }
+            }
         }
 
         visitor.endVisit(this);
@@ -103,7 +114,7 @@ public class SQLCharacterDataType extends SQLDataTypeImpl {
 
 
     public SQLCharacterDataType clone() {
-        SQLCharacterDataType x = new SQLCharacterDataType(name);
+        SQLCharacterDataType x = new SQLCharacterDataType(getName());
 
         super.cloneTo(x);
 
@@ -118,5 +129,29 @@ public class SQLCharacterDataType extends SQLDataTypeImpl {
     @Override
     public String toString() {
         return SQLUtils.toSQLString(this);
+    }
+
+    public int jdbcType() {
+        long nameNash = nameHashCode64();
+
+        if (nameNash == FnvHash.Constants.NCHAR) {
+            return Types.NCHAR;
+        }
+
+        if (nameNash == FnvHash.Constants.CHAR || nameNash == FnvHash.Constants.JSON) {
+            return Types.CHAR;
+        }
+
+        if (nameNash == FnvHash.Constants.VARCHAR
+                || nameNash == FnvHash.Constants.VARCHAR2
+                || nameNash == FnvHash.Constants.STRING) {
+            return Types.VARCHAR;
+        }
+
+        if (nameNash == FnvHash.Constants.NVARCHAR || nameNash == FnvHash.Constants.NVARCHAR2) {
+            return Types.NVARCHAR;
+        }
+
+        return Types.OTHER;
     }
 }

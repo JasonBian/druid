@@ -15,14 +15,13 @@
  */
 package com.alibaba.druid.bvt.sql.postgresql.select;
 
-import java.util.List;
-
-import org.junit.Assert;
-
 import com.alibaba.druid.sql.PGTest;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.postgresql.parser.PGSQLStatementParser;
 import com.alibaba.druid.sql.dialect.postgresql.visitor.PGSchemaStatVisitor;
+import org.junit.Assert;
+
+import java.util.List;
 
 public class PGSelectForUpdateTest extends PGTest {
 

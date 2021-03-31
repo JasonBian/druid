@@ -15,20 +15,20 @@
  */
 package com.alibaba.druid.sql.visitor.functions;
 
-import static com.alibaba.druid.sql.visitor.SQLEvalVisitor.EVAL_VALUE;
-
-import java.util.List;
-
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.visitor.SQLEvalVisitor;
+
+import java.util.List;
+
+import static com.alibaba.druid.sql.visitor.SQLEvalVisitor.EVAL_VALUE;
 
 public class Locate implements Function {
 
     public final static Locate instance = new Locate();
 
     public Object eval(SQLEvalVisitor visitor, SQLMethodInvokeExpr x) {
-        List<SQLExpr> params = x.getParameters();
+        List<SQLExpr> params = x.getArguments();
         int paramSize = params.size();
         if (paramSize != 2 && paramSize != 3) {
             return SQLEvalVisitor.EVAL_ERROR;

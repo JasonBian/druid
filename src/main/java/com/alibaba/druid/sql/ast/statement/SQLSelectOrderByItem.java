@@ -15,18 +15,20 @@
  */
 package com.alibaba.druid.sql.ast.statement;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.SQLObjectImpl;
-import com.alibaba.druid.sql.ast.SQLOrderingSpecification;
-import com.alibaba.druid.sql.ast.SQLReplaceable;
+import com.alibaba.druid.sql.ast.*;
+import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
-public class SQLSelectOrderByItem extends SQLObjectImpl implements SQLReplaceable {
+import java.util.List;
+
+public final class SQLSelectOrderByItem extends SQLObjectImpl implements SQLReplaceable {
 
     protected SQLExpr                  expr;
     protected String                   collate;
     protected SQLOrderingSpecification type;
     protected NullsOrderType           nullsOrderType;
+
+    protected transient SQLSelectItem  resolvedSelectItem;
 
     public SQLSelectOrderByItem(){
 
@@ -34,6 +36,11 @@ public class SQLSelectOrderByItem extends SQLObjectImpl implements SQLReplaceabl
 
     public SQLSelectOrderByItem(SQLExpr expr){
         this.setExpr(expr);
+    }
+
+    public SQLSelectOrderByItem(SQLExpr expr, SQLOrderingSpecification type){
+        this.setExpr(expr);
+        this.type = type;
     }
 
     public SQLExpr getExpr() {
@@ -71,12 +78,14 @@ public class SQLSelectOrderByItem extends SQLObjectImpl implements SQLReplaceabl
         this.nullsOrderType = nullsOrderType;
     }
 
-    protected void accept0(SQLASTVisitor visitor) {
-        if (visitor.visit(this)) {
-            acceptChild(visitor, this.expr);
+    protected void accept0(SQLASTVisitor v) {
+        if (v.visit(this)) {
+            if (expr != null) {
+                expr.accept(v);
+            }
         }
 
-        visitor.endVisit(this);
+        v.endVisit(this);
     }
 
     @Override
@@ -108,6 +117,9 @@ public class SQLSelectOrderByItem extends SQLObjectImpl implements SQLReplaceabl
     @Override
     public boolean replace(SQLExpr expr, SQLExpr target) {
         if (this.expr == expr) {
+            if (target instanceof SQLIntegerExpr && parent instanceof SQLOrderBy) {
+                ((SQLOrderBy) parent).getItems().remove(this);
+            }
             this.setExpr(target);
             return true;
         }
@@ -139,5 +151,50 @@ public class SQLSelectOrderByItem extends SQLObjectImpl implements SQLReplaceabl
         x.type = type;
         x.nullsOrderType = nullsOrderType;
         return x;
+    }
+
+    public SQLSelectItem getResolvedSelectItem() {
+        return resolvedSelectItem;
+    }
+
+    public void setResolvedSelectItem(SQLSelectItem resolvedSelectItem) {
+        this.resolvedSelectItem = resolvedSelectItem;
+    }
+
+    public boolean isClusterBy() {
+        if (parent instanceof SQLCreateTableStatement) {
+            List<SQLSelectOrderByItem> clusteredBy = ((SQLCreateTableStatement) parent).getClusteredBy();
+            return clusteredBy.indexOf(this) != -1;
+        }
+
+        if (parent instanceof SQLSelectQueryBlock) {
+            List<SQLSelectOrderByItem> clusterBy = ((SQLSelectQueryBlock) parent).getClusterByDirect();
+            return clusterBy != null && clusterBy.indexOf(this) != -1;
+        }
+
+        return false;
+    }
+
+    public boolean isSortBy() {
+        if (parent instanceof SQLCreateTableStatement) {
+            List<SQLSelectOrderByItem> sortedBy = ((SQLCreateTableStatement) parent).getSortedBy();
+            return sortedBy.indexOf(this) != -1;
+        }
+
+        if (parent instanceof SQLSelectQueryBlock) {
+            List<SQLSelectOrderByItem> sortedBy = ((SQLSelectQueryBlock) parent).getSortByDirect();
+            return sortedBy != null && sortedBy.indexOf(this) != -1;
+        }
+
+        return false;
+    }
+
+    public boolean isDistributeBy() {
+        if (parent instanceof SQLSelectQueryBlock) {
+            List<SQLSelectOrderByItem> distributeBy = ((SQLSelectQueryBlock) parent).getDistributeBy();
+            return distributeBy.indexOf(this) != -1;
+        }
+
+        return false;
     }
 }

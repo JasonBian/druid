@@ -15,14 +15,14 @@
  */
 package com.alibaba.druid.bvt.sql.oracle.select;
 
-import java.util.List;
-
 import com.alibaba.druid.sql.OracleTest;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
 import com.alibaba.druid.stat.TableStat;
 import com.alibaba.druid.util.JdbcConstants;
+
+import java.util.List;
 
 public class OracleSelectTest16 extends OracleTest {
 

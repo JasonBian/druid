@@ -15,12 +15,12 @@
  */
 package com.alibaba.druid.sql.parser;
 
-import com.alibaba.druid.DruidRuntimeException;
+import com.alibaba.druid.FastsqlException;
 
 /**
  * @author wenshao [szujobs@hotmail.com]
  */
 @SuppressWarnings("serial")
 @Deprecated
-public class SQLParseException extends DruidRuntimeException {
+public class SQLParseException extends FastsqlException {
 }

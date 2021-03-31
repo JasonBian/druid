@@ -15,9 +15,7 @@
  */
 package com.alibaba.druid.sql.dialect.sqlserver.ast.stmt;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerObject;
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerOutput;
@@ -32,6 +30,21 @@ public class SQLServerInsertStatement extends SQLInsertStatement implements SQLS
     private SQLServerTop       top;
 
     private SQLServerOutput    output;
+
+    public SQLServerInsertStatement() {
+        dbType = DbType.sqlserver;
+    }
+
+    public void cloneTo(SQLServerInsertStatement x) {
+        super.cloneTo(x);
+        x.defaultValues = defaultValues;
+        if (top != null) {
+            x.setTop(top.clone());
+        }
+        if (output != null) {
+            x.setOutput(output.clone());
+        }
+    }
 
     @Override
     protected void accept0(SQLASTVisitor visitor) {
@@ -76,4 +89,9 @@ public class SQLServerInsertStatement extends SQLInsertStatement implements SQLS
         this.top = top;
     }
 
+    public SQLServerInsertStatement clone() {
+        SQLServerInsertStatement x = new SQLServerInsertStatement();
+        cloneTo(x);
+        return x;
+    }
 }

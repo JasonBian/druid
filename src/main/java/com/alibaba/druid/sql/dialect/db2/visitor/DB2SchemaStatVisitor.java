@@ -15,17 +15,23 @@
  */
 package com.alibaba.druid.sql.dialect.db2.visitor;
 
+import com.alibaba.druid.DbType;
+import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
+import com.alibaba.druid.sql.dialect.db2.ast.DB2Object;
+import com.alibaba.druid.sql.dialect.db2.ast.stmt.DB2CreateTableStatement;
 import com.alibaba.druid.sql.dialect.db2.ast.stmt.DB2SelectQueryBlock;
 import com.alibaba.druid.sql.dialect.db2.ast.stmt.DB2ValuesStatement;
+import com.alibaba.druid.sql.repository.SchemaRepository;
 import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
-import com.alibaba.druid.util.JdbcUtils;
 
 public class DB2SchemaStatVisitor extends SchemaStatVisitor implements DB2ASTVisitor {
+    public DB2SchemaStatVisitor() {
+        super (DbType.db2);
+    }
 
-    @Override
-    public String getDbType() {
-        return JdbcUtils.DB2;
+    public DB2SchemaStatVisitor(SchemaRepository repository) {
+        super (repository);
     }
 
     @Override
@@ -42,9 +48,21 @@ public class DB2SchemaStatVisitor extends SchemaStatVisitor implements DB2ASTVis
     public boolean visit(DB2ValuesStatement x) {
         return false;
     }
-    
+
     @Override
-    public void endVisit(DB2ValuesStatement x) {
-        
+    public boolean visit(DB2CreateTableStatement x) {
+        return visit((SQLCreateTableStatement) x);
+    }
+
+    @Override
+    public void endVisit(DB2CreateTableStatement x) {
+
+    }
+
+    protected boolean isPseudoColumn(long hash64) {
+        return hash64 == DB2Object.Constants.CURRENT_DATE
+                ||  hash64 == DB2Object.Constants.CURRENT_DATE2
+                || hash64 == DB2Object.Constants.CURRENT_TIME
+                || hash64 == DB2Object.Constants.CURRENT_SCHEMA;
     }
 }

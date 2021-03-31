@@ -31,7 +31,7 @@ public class MySqlSelectTest_33 extends MysqlTest {
                 "DATE_FORMAT(DATE(reg_time), '%Y-%m-%d') AS date,\n" +
                 "(HOUR(reg_time) DIV 2) as intervalTime\n" +
                 "FROM USER_RECOMMEND_INFO WHERE 1=1\n" +
-                "and reg_time >='2016-12-01 00:00:00'\n" +
+                "and reg_time >=\"2016-12-01 00:00:00\"\n" +
                 "and reg_time <='2016-12-01 23:59:59'\n" +
                 "group by DATE(reg_time),HOUR(reg_time) DIV 2";
 
@@ -48,7 +48,7 @@ public class MySqlSelectTest_33 extends MysqlTest {
 
 //        System.out.println("Tables : " + visitor.getTables());
 //        System.out.println("fields : " + visitor.getColumns());
-//        System.out.println("coditions : " + visitor.getConditions());
+        System.out.println("coditions : " + visitor.getConditions());
 //        System.out.println("orderBy : " + visitor.getOrderByColumns());
         
 //        Assert.assertEquals(1, visitor.getTables().size());

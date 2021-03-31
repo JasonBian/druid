@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group Holding Ltd.
+ * Copyright 1999-2018 Alibaba Group Holding Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,17 @@ public class OracleWallTest extends TestCase {
     public void testWall() throws Exception {
         WallConfig config = new WallConfig();
         config.setSelectUnionCheck(true);
-        Assert.assertTrue(WallUtils.isValidateOracle("select f1, f2 from t where c=1 union select 1, 2",config));
-        Assert.assertFalse(WallUtils.isValidateOracle("select f1, f2 from t where c=1 union select 1, 2 --",config));
+        assertTrue(WallUtils.isValidateOracle("select f1, f2 from t where c=1 union select 1, 2",config));
+        assertFalse(WallUtils.isValidateOracle("select f1, f2 from t where c=1 union select 1, 2 --",config));
         
-        Assert.assertFalse(WallUtils.isValidateOracle("SELECT * FROM T UNION select * from TAB"));
-        Assert.assertFalse(WallUtils.isValidateOracle("SELECT * FROM T UNION select * from ALL_TABLES where (1=1 or (1+1)=2) and (4=8 or 1=1)"));
+        assertFalse(WallUtils.isValidateOracle("SELECT * FROM T UNION select * from TAB"));
+        assertFalse(WallUtils.isValidateOracle("SELECT * FROM T UNION select * from ALL_TABLES where (1=1 or (1+1)=2) and (4=8 or 1=1)"));
+    }
+
+    public void testWall_1() throws Exception {
+        WallConfig config = new WallConfig();
+        
+        assertTrue(
+                WallUtils.isValidateOracle("select/*+QUERY_TIMEOUT(600000000)*/ * from test_number",config));
     }
 }

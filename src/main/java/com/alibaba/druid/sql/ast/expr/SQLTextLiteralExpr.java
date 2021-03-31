@@ -17,6 +17,9 @@ package com.alibaba.druid.sql.ast.expr;
 
 import com.alibaba.druid.sql.ast.SQLExprImpl;
 
+import java.util.Collections;
+import java.util.List;
+
 public abstract class SQLTextLiteralExpr extends SQLExprImpl implements SQLLiteralExpr {
 
     protected String text;
@@ -26,7 +29,6 @@ public abstract class SQLTextLiteralExpr extends SQLExprImpl implements SQLLiter
     }
 
     public SQLTextLiteralExpr(String text){
-
         this.text = text;
     }
 
@@ -66,5 +68,12 @@ public abstract class SQLTextLiteralExpr extends SQLExprImpl implements SQLLiter
             return false;
         }
         return true;
+    }
+
+    public abstract SQLTextLiteralExpr clone();
+
+    @Override
+    public List getChildren() {
+        return Collections.emptyList();
     }
 }

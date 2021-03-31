@@ -15,21 +15,17 @@
  */
 package com.alibaba.druid.sql.ast.statement;
 
+import com.alibaba.druid.sql.ast.*;
+import com.alibaba.druid.sql.visitor.SQLASTVisitor;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.SQLStatement;
-import com.alibaba.druid.sql.ast.SQLStatementImpl;
-import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlStatementImpl;
-import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitor;
-import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
 /**
  * 
  * @author zz [455910092@qq.com]
  */
-public class SQLWhileStatement extends SQLStatementImpl {
+public class SQLWhileStatement extends SQLStatementImpl implements SQLReplaceable {
 	
 	//while expr
 	private SQLExpr            condition;
@@ -54,7 +50,15 @@ public class SQLWhileStatement extends SQLStatementImpl {
         visitor.endVisit(this);
     }
 
-    public List<SQLStatement> getStatements() {
+	@Override
+	public List<SQLObject> getChildren() {
+		List<SQLObject> children = new ArrayList<SQLObject>();
+		children.add(condition);
+		children.addAll(this.statements);
+		return children;
+	}
+
+	public List<SQLStatement> getStatements() {
         return statements;
     }
 
@@ -65,7 +69,36 @@ public class SQLWhileStatement extends SQLStatementImpl {
 		return condition;
 	}
 
-	public void setCondition(SQLExpr condition) {
-		this.condition = condition;
+	public void setCondition(SQLExpr x) {
+		if (x != null) {
+			x.setParent(this);
+		}
+
+		this.condition = x;
+	}
+
+	public SQLWhileStatement clone() {
+		SQLWhileStatement x = new SQLWhileStatement();
+
+		if (condition != null) {
+			x.setCondition(condition.clone());
+		}
+		for (SQLStatement stmt : statements) {
+			SQLStatement stmt2 = stmt.clone();
+			stmt2.setParent(x);
+			x.statements.add(stmt2);
+		}
+		x.labelName = labelName;
+		return x;
+	}
+
+	@Override
+	public boolean replace(SQLExpr expr, SQLExpr target) {
+		if (condition == expr) {
+			setCondition(target);
+			return true;
+		}
+
+		return false;
 	}
 }

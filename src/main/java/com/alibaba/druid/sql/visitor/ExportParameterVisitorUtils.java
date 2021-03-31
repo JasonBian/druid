@@ -15,9 +15,7 @@
  */
 package com.alibaba.druid.sql.visitor;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.expr.*;
@@ -26,7 +24,9 @@ import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlExportParameterVisitor;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleExportParameterVisitor;
 import com.alibaba.druid.sql.dialect.postgresql.visitor.PGExportParameterVisitor;
 import com.alibaba.druid.sql.dialect.sqlserver.visitor.MSSQLServerExportParameterVisitor;
-import com.alibaba.druid.util.JdbcUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class ExportParameterVisitorUtils {
     
@@ -35,35 +35,30 @@ public final class ExportParameterVisitorUtils {
         super();
     }
 
-    public static ExportParameterVisitor createExportParameterVisitor(final  Appendable out ,final String dbType) {
-        
-        if (JdbcUtils.MYSQL.equals(dbType)) {
-            return new MySqlExportParameterVisitor(out);
-        }
-        if (JdbcUtils.ORACLE.equals(dbType) || JdbcUtils.ALI_ORACLE.equals(dbType)) {
-            return new OracleExportParameterVisitor(out);
-        }
-        if (JdbcUtils.DB2.equals(dbType)) {
-            return new DB2ExportParameterVisitor(out);
-        }
-        
-        if (JdbcUtils.MARIADB.equals(dbType)) {
-            return new MySqlExportParameterVisitor(out);
-        }
-        
-        if (JdbcUtils.H2.equals(dbType)) {
-            return new MySqlExportParameterVisitor(out);
+    public static ExportParameterVisitor createExportParameterVisitor(Appendable out, DbType dbType) {
+        if (dbType == null) {
+            dbType = DbType.other;
         }
 
-        if (JdbcUtils.POSTGRESQL.equals(dbType)
-                || JdbcUtils.ENTERPRISEDB.equals(dbType)) {
-            return new PGExportParameterVisitor(out);
+        switch (dbType) {
+            case mysql:
+            case mariadb:
+                return new MySqlExportParameterVisitor(out);
+            case oracle:
+                return new OracleExportParameterVisitor(out);
+            case db2:
+                return new DB2ExportParameterVisitor(out);
+            case h2:
+                return new MySqlExportParameterVisitor(out);
+            case sqlserver:
+            case jtds:
+                return new MSSQLServerExportParameterVisitor(out);
+            case postgresql:
+            case edb:
+                return new PGExportParameterVisitor(out);
+            default:
+                return new ExportParameterizedOutputVisitor(out);
         }
-
-        if (JdbcUtils.SQL_SERVER.equals(dbType) || JdbcUtils.JTDS.equals(dbType)) {
-            return new MSSQLServerExportParameterVisitor(out);
-        }
-       return new ExportParameterizedOutputVisitor(out);
     }
 
     
@@ -87,28 +82,70 @@ public final class ExportParameterVisitorUtils {
 
         if (param instanceof SQLCharExpr) {
             value = ((SQLCharExpr) param).getText();
+            String vStr = (String) value;
+//            if (vStr.length() > 1) {
+//                value = StringUtils.removeNameQuotes(vStr);
+//            }
             replace = true;
-        }
-
-        if (param instanceof SQLBooleanExpr) {
-            value = ((SQLBooleanExpr) param).getValue();
+        } else if ( param instanceof SQLNCharExpr) {
+            value = ((SQLNCharExpr) param).getText();
             replace = true;
-        }
-
-        if (param instanceof SQLNumericLiteralExpr) {
+        } else if (param instanceof SQLBooleanExpr) {
+            value = ((SQLBooleanExpr) param).getBooleanValue();
+            replace = true;
+        } else if (param instanceof SQLNumericLiteralExpr) {
             value = ((SQLNumericLiteralExpr) param).getNumber();
             replace = true;
-        }
-
-        if (param instanceof SQLHexExpr) {
+        } else if (param instanceof SQLHexExpr) {
             value = ((SQLHexExpr) param).toBytes();
+            replace = true;
+        } else if (param instanceof SQLTimestampExpr) {
+            value = ((SQLTimestampExpr) param).getValue();
+            replace = true;
+        } else if (param instanceof SQLDateExpr) {
+            value = ((SQLDateExpr) param).getValue();
+            replace = true;
+        } else if (param instanceof SQLTimeExpr) {
+            value = ((SQLTimeExpr) param).getValue();
+            replace = true;
+        } else if (param instanceof SQLListExpr) {
+            SQLListExpr list = ((SQLListExpr) param);
+
+            List<Object> listValues = new ArrayList<Object>();
+            for (int i = 0; i < list.getItems().size(); i++) {
+                SQLExpr listItem = list.getItems().get(i);
+
+                if (listItem instanceof SQLCharExpr) {
+                    Object listValue = ((SQLCharExpr) listItem).getText();
+                    listValues.add(listValue);
+                } else if (listItem instanceof SQLBooleanExpr) {
+                    Object listValue = ((SQLBooleanExpr) listItem).getBooleanValue();
+                    listValues.add(listValue);
+                } else if (listItem instanceof SQLNumericLiteralExpr) {
+                    Object listValue = ((SQLNumericLiteralExpr) listItem).getNumber();
+                    listValues.add(listValue);
+                } else if (param instanceof SQLHexExpr) {
+                    Object listValue = ((SQLHexExpr) listItem).toBytes();
+                    listValues.add(listValue);
+                }
+            }
+
+            if (listValues.size() == list.getItems().size()) {
+                value = listValues;
+                replace = true;
+            }
+        } else if (param instanceof SQLNullExpr) {
+            value = null;
             replace = true;
         }
 
         if (replace) {
             SQLObject parent = param.getParent();
             if (parent != null) {
-                List<SQLObject> mergedList = (List<SQLObject>) parent.getAttribute(ParameterizedOutputVisitorUtils.ATTR_MERGED);
+                List<SQLObject> mergedList = null;
+                if (parent instanceof SQLBinaryOpExpr) {
+                    mergedList = ((SQLBinaryOpExpr) parent).getMergedList();
+                }
                 if (mergedList != null) {
                     List<Object> mergedListParams = new ArrayList<Object>(mergedList.size() + 1);
                     for (int i = 0; i < mergedList.size(); ++i) {
@@ -125,7 +162,9 @@ public final class ExportParameterVisitorUtils {
                 }
             }
 
-            parameters.add(value);
+            if (parameters != null) {
+                parameters.add(value);
+            }
 
             return new SQLVariantRefExpr("?");
         }

@@ -15,6 +15,7 @@
  */
 package com.alibaba.druid.bvt.sql.postgresql.select;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.PGTest;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
@@ -25,7 +26,7 @@ import org.junit.Assert;
 import java.util.List;
 
 public class PGSelectTest47 extends PGTest {
-    private String dbType = JdbcConstants.POSTGRESQL;
+    private DbType dbType = JdbcConstants.POSTGRESQL;
 
     public void test_0() throws Exception {
         String sql = "SELECT\n" +

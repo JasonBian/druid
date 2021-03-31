@@ -52,4 +52,17 @@ public class SQLSubPartitionByHash extends SQLSubPartitionBy {
         this.key = key;
     }
 
+    public SQLSubPartitionByHash clone() {
+        SQLSubPartitionByHash x = new SQLSubPartitionByHash();
+        if (expr != null) {
+            x.setExpr(expr.clone());
+        }
+        x.key = key;
+        return x;
+    }
+
+    public boolean isPartitionByColumn(long columnNameHashCode64) {
+        return expr instanceof SQLName
+                && ((SQLName) expr).nameHashCode64() == columnNameHashCode64;
+    }
 }

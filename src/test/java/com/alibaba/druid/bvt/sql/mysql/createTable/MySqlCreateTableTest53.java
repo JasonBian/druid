@@ -15,15 +15,14 @@
  */
 package com.alibaba.druid.bvt.sql.mysql.createTable;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.alibaba.druid.sql.MysqlTest;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.stat.TableStat;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class MySqlCreateTableTest53 extends MysqlTest {
 
@@ -66,7 +65,7 @@ public class MySqlCreateTableTest53 extends MysqlTest {
     +"\n\t`create_time` datetime NOT NULL COMMENT '授权时间',"//
     +"\n\t`invalid_time` datetime NOT NULL COMMENT '授权失效时间',"//
     +"\n\tPRIMARY KEY USING BTREE (`auth_id`)"
-    +"\n) ENGINE = InnoDB CHARSET = utf8 COLLATE utf8_bin COMMENT = 'INS_EBAY_AUTH'", output);
+    +"\n) ENGINE = InnoDB CHARSET = utf8 COLLATE = utf8_bin COMMENT 'INS_EBAY_AUTH'", output);
     }
     
     @Test
@@ -109,7 +108,7 @@ public class MySqlCreateTableTest53 extends MysqlTest {
     +"\n\t`invalid_time` datetime NOT NULL COMMENT '授权失效时间',"//
     +"\n\tPRIMARY KEY USING BTREE (`auth_id`),"
     +"\n\tINDEX `ind_usr_id` USING BTREE(`usr_id`)"
-    +"\n) ENGINE = InnoDB CHARSET = utf8 COLLATE utf8_bin COMMENT = 'INS_EBAY_AUTH'", output);
+    +"\n) ENGINE = InnoDB CHARSET = utf8 COLLATE = utf8_bin COMMENT 'INS_EBAY_AUTH'", output);
     }
     
     @Test
@@ -152,6 +151,6 @@ public class MySqlCreateTableTest53 extends MysqlTest {
     +"\n\t`invalid_time` datetime NOT NULL COMMENT '授权失效时间',"//
     +"\n\tPRIMARY KEY USING BTREE (`auth_id`),"
     +"\n\tKEY `ind_usr_id` USING BTREE (`usr_id`)"
-    +"\n) ENGINE = InnoDB CHARSET = utf8 COLLATE utf8_bin COMMENT = 'INS_EBAY_AUTH'", output);
+    +"\n) ENGINE = InnoDB CHARSET = utf8 COLLATE = utf8_bin COMMENT 'INS_EBAY_AUTH'", output);
     }
 }

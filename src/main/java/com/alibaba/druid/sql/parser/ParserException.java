@@ -15,11 +15,16 @@
  */
 package com.alibaba.druid.sql.parser;
 
+import com.alibaba.druid.FastsqlException;
+
 import java.io.Serializable;
 
-public class ParserException extends RuntimeException implements Serializable {
+public class ParserException extends FastsqlException implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private int line;
+    private int column;
 
     public ParserException(){
     }
@@ -28,12 +33,16 @@ public class ParserException extends RuntimeException implements Serializable {
         super(message);
     }
 
+
+
     public ParserException(String message, Throwable e){
         super(message, e);
     }
 
-    public ParserException(String message, int line, int col){
+    public ParserException(String message, int line, int column){
         super(message);
+        this.line = line;
+        this.column = column;
     }
 
     public ParserException(Throwable ex, String ksql){

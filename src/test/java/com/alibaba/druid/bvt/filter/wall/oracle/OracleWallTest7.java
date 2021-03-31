@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group Holding Ltd.
+ * Copyright 1999-2018 Alibaba Group Holding Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,5 +26,16 @@ public class OracleWallTest7 extends TestCase {
         "begin\n"
                 + "end";
         Assert.assertTrue(WallUtils.isValidateOracle(sql));
+    }
+
+    public void test_insert_all() throws Exception {
+        String sql = //
+        "INSERT ALL\n" +
+                "  INTO mytable (column1, column2, column_n) VALUES (expr1, expr2, expr_n)\n" +
+                "  INTO mytable (column1, column2, column_n) VALUES (expr1, expr2, expr_n)\n" +
+                "  INTO mytable (column1, column2, column_n) VALUES (expr1, expr2, expr_n)\n" +
+                "SELECT * FROM dual;";
+
+        assertTrue(WallUtils.isValidateOracle(sql));
     }
 }

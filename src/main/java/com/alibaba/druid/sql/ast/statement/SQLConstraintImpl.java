@@ -15,21 +15,20 @@
  */
 package com.alibaba.druid.sql.ast.statement;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
-import com.alibaba.druid.sql.ast.SQLCommentHint;
-import com.alibaba.druid.sql.ast.SQLName;
-import com.alibaba.druid.sql.ast.SQLObjectImpl;
+import com.alibaba.druid.sql.ast.*;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 
 import java.util.List;
 
-public abstract class SQLConstraintImpl extends SQLObjectImpl implements SQLConstraint {
-    protected String dbType;
-
-    protected SQLName name;
-    private Boolean enable;
-    private Boolean validate;
-    private Boolean rely;
+public abstract class SQLConstraintImpl extends SQLObjectImpl implements SQLConstraint, SQLDbTypedObject {
+    protected DbType  dbType;
+    private SQLName name;
+    protected Boolean enable;
+    protected Boolean validate;
+    protected Boolean rely;
+    private SQLExpr comment;
 
     public List<SQLCommentHint> hints;
 
@@ -38,8 +37,8 @@ public abstract class SQLConstraintImpl extends SQLObjectImpl implements SQLCons
     }
 
     public void cloneTo(SQLConstraintImpl x) {
-        if (name != null) {
-            x.setName(name.clone());
+        if (getName() != null) {
+            x.setName(getName().clone());
         }
 
         x.enable = enable;
@@ -61,7 +60,14 @@ public abstract class SQLConstraintImpl extends SQLObjectImpl implements SQLCons
     }
 
     public void setName(SQLName name) {
+        if (name != null) {
+            name.setParent(this);
+        }
         this.name = name;
+    }
+
+    public void setName(String name) {
+        this.setName(new SQLIdentifierExpr(name));
     }
 
     public Boolean getEnable() {
@@ -73,8 +79,8 @@ public abstract class SQLConstraintImpl extends SQLObjectImpl implements SQLCons
     }
 
     public void cloneTo(SQLConstraint x) {
-        if (name != null) {
-            x.setName(name.clone());
+        if (getName() != null) {
+            x.setName(getName().clone());
         }
     }
 
@@ -94,20 +100,47 @@ public abstract class SQLConstraintImpl extends SQLObjectImpl implements SQLCons
         this.rely = rely;
     }
 
-    public String getDbType() {
+    public DbType getDbType() {
         return dbType;
     }
 
-    public void setDbType(String dbType) {
+    public void setDbType(DbType dbType) {
         this.dbType = dbType;
     }
 
-    public void simplify() {
-        if (this.name instanceof SQLIdentifierExpr) {
-            SQLIdentifierExpr identExpr = (SQLIdentifierExpr) this.name;
-            String columnName = identExpr.getName();
-            columnName = SQLUtils.normalize(columnName, dbType);
-            identExpr.setName(columnName);
+    public SQLExpr getComment() {
+        return comment;
+    }
+
+    public void setComment(SQLExpr x) {
+        if (x != null) {
+            x.setParent(this);
         }
+        this.comment = x;
+    }
+
+    public void simplify() {
+        if (getName() instanceof SQLIdentifierExpr) {
+            SQLIdentifierExpr identExpr = (SQLIdentifierExpr) getName();
+            String columnName = identExpr.getName();
+
+            String normalized = SQLUtils.normalize(columnName, dbType);
+            if (columnName != normalized) {
+                this.setName(normalized);
+            }
+        }
+    }
+
+    public boolean replace(SQLExpr expr, SQLExpr target) {
+        if (getName() == expr) {
+            setName((SQLName) target);
+            return true;
+        }
+
+        if (getComment() == expr) {
+            setComment(target);
+            return true;
+        }
+        return false;
     }
 }

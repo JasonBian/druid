@@ -1,14 +1,15 @@
 package com.alibaba.druid.bvt.sql.mysql.param;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.sql.visitor.SQLASTOutputVisitor;
 import com.alibaba.druid.util.JdbcConstants;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.List;
  */
 public class MySqlParameterizedOutputVisitorTest_41 extends TestCase {
     public void test_for_parameterize() throws Exception {
-        final String dbType = JdbcConstants.MYSQL;
+        final DbType dbType = JdbcConstants.MYSQL;
         String sql = "select * from db_00.t_00_00 where id > 1";
 
         SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, dbType);
@@ -41,7 +42,7 @@ public class MySqlParameterizedOutputVisitorTest_41 extends TestCase {
 
         String psql = out.toString();
         assertEquals("SELECT *\n" +
-                "FROM db_00.t\n" +
+                "FROM db.t\n" +
                 "WHERE id > ?", psql);
         String params_json = JSONArray.toJSONString(parameters, SerializerFeature.WriteClassName);
         System.out.println(params_json);
@@ -51,7 +52,7 @@ public class MySqlParameterizedOutputVisitorTest_41 extends TestCase {
 
         String rsql = SQLUtils.toSQLString(SQLUtils.parseStatements(psql, dbType), dbType, jsonArray);
         assertEquals("SELECT *\n" +
-                "FROM db_00.t\n" +
+                "FROM db.t\n" +
                 "WHERE id > 1", rsql);
     }
 }

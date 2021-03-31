@@ -52,7 +52,8 @@ public class MySqlSelectTest_49_for_update_no_wait extends MysqlTest {
         
         {
             String output = SQLUtils.toMySqlString(stmt);
-            assertEquals("SELECT /*+INDEX(AR_II_M_004 PRIMARY) */ tnt_inst_id, ar_no, ar_nm, ar_tp_code, ar_entity_type\n" +
+            assertEquals("SELECT /*MS-ARCORE-AR-II-M-QUERY-IN-LOCK-BY-AR-NOS*/\n" +
+                            "/*+INDEX(AR_II_M_004 PRIMARY) */ tnt_inst_id, ar_no, ar_nm, ar_tp_code, ar_entity_type\n" +
                             "FROM tb_001\n" +
                             "WHERE tnt_inst_id = ?\n" +
                             "\tAND ar_no IN (?)\n" +
@@ -61,7 +62,8 @@ public class MySqlSelectTest_49_for_update_no_wait extends MysqlTest {
         }
         {
             String output = SQLUtils.toMySqlString(stmt, SQLUtils.DEFAULT_LCASE_FORMAT_OPTION);
-            assertEquals("select /*+INDEX(AR_II_M_004 PRIMARY) */ tnt_inst_id, ar_no, ar_nm, ar_tp_code, ar_entity_type\n" +
+            assertEquals("select /*MS-ARCORE-AR-II-M-QUERY-IN-LOCK-BY-AR-NOS*/\n" +
+                            "/*+INDEX(AR_II_M_004 PRIMARY) */ tnt_inst_id, ar_no, ar_nm, ar_tp_code, ar_entity_type\n" +
                             "from tb_001\n" +
                             "where tnt_inst_id = ?\n" +
                             "\tand ar_no in (?)\n" +

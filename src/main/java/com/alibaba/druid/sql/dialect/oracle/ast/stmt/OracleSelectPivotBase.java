@@ -15,12 +15,11 @@
  */
 package com.alibaba.druid.sql.dialect.oracle.ast.stmt;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.dialect.oracle.ast.OracleSQLObjectImpl;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.dialect.oracle.ast.OracleSQLObject;
-import com.alibaba.druid.sql.dialect.oracle.ast.OracleSQLObjectImpl;
 
 public abstract class OracleSelectPivotBase extends OracleSQLObjectImpl {
 

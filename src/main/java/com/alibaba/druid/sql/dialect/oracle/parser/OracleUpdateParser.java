@@ -41,7 +41,7 @@ public class OracleUpdateParser extends SQLStatementParser {
 
             parseHints(update);
 
-            if (identifierEquals("ONLY")) {
+            if (lexer.identifierEquals("ONLY")) {
                 update.setOnly(true);
             }
 
@@ -65,13 +65,13 @@ public class OracleUpdateParser extends SQLStatementParser {
     }
 
     private void parseErrorLoging(OracleUpdateStatement update) {
-        if (identifierEquals("LOG")) {
+        if (lexer.identifierEquals("LOG")) {
             throw new ParserException("TODO. " + lexer.info());
         }
     }
 
     private void parseReturn(OracleUpdateStatement update) {
-        if (identifierEquals("RETURN") || lexer.token() == Token.RETURNING) {
+        if (lexer.token() == Token.RETURN || lexer.token() == Token.RETURNING) {
             lexer.nextToken();
 
             for (;;) {
@@ -90,7 +90,7 @@ public class OracleUpdateParser extends SQLStatementParser {
 
             for (;;) {
                 SQLExpr item = this.exprParser.expr();
-                update.getReturningInto().add(item);
+                update.addReturningInto(item);
 
                 if (lexer.token() == Token.COMMA) {
                     lexer.nextToken();

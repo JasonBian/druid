@@ -15,15 +15,14 @@
  */
 package com.alibaba.druid.sql.dialect.postgresql.parser;
 
-import static com.alibaba.druid.sql.parser.Token.LITERAL_CHARS;
+import com.alibaba.druid.DbType;
+import com.alibaba.druid.sql.parser.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.druid.sql.parser.Keywords;
-import com.alibaba.druid.sql.parser.Lexer;
-import com.alibaba.druid.sql.parser.Token;
-import com.alibaba.druid.util.JdbcConstants;
+import static com.alibaba.druid.sql.parser.CharTypes.isIdentifierChar;
+import static com.alibaba.druid.sql.parser.Token.LITERAL_CHARS;
 
 public class PGLexer extends Lexer {
 
@@ -69,14 +68,21 @@ public class PGLexer extends Lexer {
         map.put("IF", Token.IF);
         map.put("TYPE", Token.TYPE);
         map.put("ILIKE", Token.ILIKE);
+        map.put("MERGE", Token.MERGE);
+        map.put("MATCHED", Token.MATCHED);
+        map.put("PARTITION", Token.PARTITION);
 
         DEFAULT_PG_KEYWORDS = new Keywords(map);
     }
 
-    public PGLexer(String input){
-        super(input);
-        super.keywods = DEFAULT_PG_KEYWORDS;
-        super.dbType = JdbcConstants.POSTGRESQL;
+    public PGLexer(String input, SQLParserFeature... features){
+        super(input, true);
+        this.keepComments = true;
+        super.keywords = DEFAULT_PG_KEYWORDS;
+        super.dbType = DbType.postgresql;
+        for (SQLParserFeature feature : features) {
+            config(feature, true);
+        }
     }
     
     protected void scanString() {
@@ -111,16 +117,16 @@ public class PGLexer extends Lexer {
                         putChar('"');
                         break;
                     case 'b':
-                        putChar('\b');
+                        putChar('b');
                         break;
                     case 'n':
-                        putChar('\n');
+                        putChar('n');
                         break;
                     case 'r':
-                        putChar('\r');
+                        putChar('r');
                         break;
                     case 't':
-                        putChar('\t');
+                        putChar('t');
                         break;
                     case '\\':
                         putChar('\\');
@@ -141,10 +147,11 @@ public class PGLexer extends Lexer {
                     token = LITERAL_CHARS;
                     break;
                 } else {
-                    initBuff(bufPos);
-                    arraycopy(mark + 1, buf, 0, bufPos);
-                    hasSpecial = true;
-                    putChar('\'');
+                    if (!hasSpecial) {
+                        initBuff(bufPos);
+                        arraycopy(mark + 1, buf, 0, bufPos);
+                        hasSpecial = true;
+                    }
                     putChar('\'');
                     continue;
                 }
@@ -182,5 +189,44 @@ public class PGLexer extends Lexer {
         } else {
             token = Token.POUND;
         }
+    }
+
+    protected void scanVariable_at() {
+        if (ch != '@') {
+            throw new ParserException("illegal variable. " + info());
+        }
+
+        mark = pos;
+        bufPos = 1;
+        char ch;
+
+        final char c1 = charAt(pos + 1);
+        if (c1 == '@') {
+            pos += 2;
+            token = Token.MONKEYS_AT_AT;
+            this.ch = charAt(++pos);
+            return;
+        } else if (c1 == '>') {
+            pos += 2;
+            token = Token.MONKEYS_AT_GT;
+            this.ch = charAt(++pos);
+            return;
+        }
+
+        for (;;) {
+            ch = charAt(++pos);
+
+            if (!isIdentifierChar(ch)) {
+                break;
+            }
+
+            bufPos++;
+            continue;
+        }
+
+        this.ch = charAt(pos);
+
+        stringVal = addSymbol();
+        token = Token.VARIANT;
     }
 }

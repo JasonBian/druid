@@ -15,15 +15,14 @@
  */
 package com.alibaba.druid.bvt.sql.oracle.select;
 
-import java.util.List;
-
-import org.junit.Assert;
-
 import com.alibaba.druid.sql.OracleTest;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.oracle.parser.OracleStatementParser;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleSchemaStatVisitor;
 import com.alibaba.druid.sql.test.TestUtils;
+import org.junit.Assert;
+
+import java.util.List;
 
 public class OracleSelectTest50 extends OracleTest {
 
@@ -49,7 +48,7 @@ public class OracleSelectTest50 extends OracleTest {
 
         Assert.assertEquals(1, visitor.getTables().size());
 
-        Assert.assertEquals(20, visitor.getColumns().size());
+        Assert.assertEquals(19, visitor.getColumns().size());
 
         String text = TestUtils.outputOracle(stmt);
 

@@ -22,7 +22,6 @@ import com.alibaba.druid.sql.dialect.oracle.parser.OracleStatementParser;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleSchemaStatVisitor;
 import com.alibaba.druid.stat.TableStat;
 import com.alibaba.druid.util.JdbcConstants;
-import org.junit.Assert;
 
 import java.util.List;
 
@@ -51,8 +50,8 @@ public class OracleCreateIndexTest6 extends OracleTest {
         System.out.println("relationships : " + visitor.getRelationships());
         System.out.println("orderBy : " + visitor.getOrderByColumns());
 
-        assertEquals("CREATE INDEX ord_customer_ix_demo ON orders(order_mode) NOSORT\n" +
-                "NOLOGGING;", SQLUtils.toSQLString(stmt, JdbcConstants.ORACLE));
+        assertEquals("CREATE INDEX ord_customer_ix_demo ON orders(order_mode)\n" +
+                "NOLOGGING NOSORT;", SQLUtils.toSQLString(stmt, JdbcConstants.ORACLE));
 
         assertEquals(1, visitor.getTables().size());
 

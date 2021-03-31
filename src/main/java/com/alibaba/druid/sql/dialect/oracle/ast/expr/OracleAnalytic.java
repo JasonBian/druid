@@ -15,15 +15,22 @@
  */
 package com.alibaba.druid.sql.dialect.oracle.ast.expr;
 
+import com.alibaba.druid.sql.ast.SQLDataType;
+import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.SQLOver;
+import com.alibaba.druid.sql.ast.SQLReplaceable;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
-public class OracleAnalytic extends SQLOver implements OracleExpr {
+import java.util.ArrayList;
+import java.util.List;
+
+public class OracleAnalytic extends SQLOver implements SQLReplaceable, OracleExpr {
 
     private OracleAnalyticWindowing windowing;
 
-    public OracleAnalytic(){
+    public OracleAnalytic() {
 
     }
 
@@ -39,6 +46,19 @@ public class OracleAnalytic extends SQLOver implements OracleExpr {
             acceptChild(visitor, this.windowing);
         }
         visitor.endVisit(this);
+    }
+
+    @Override
+    public List<SQLObject> getChildren() {
+        List<SQLObject> children = new ArrayList<SQLObject>();
+        children.addAll(this.partitionBy);
+        if (this.orderBy != null) {
+            children.add(orderBy);
+        }
+        if (this.windowing != null) {
+            children.add(windowing);
+        }
+        return children;
     }
 
     public OracleAnalyticWindowing getWindowing() {
@@ -57,7 +77,27 @@ public class OracleAnalytic extends SQLOver implements OracleExpr {
         return x;
     }
 
-    public void setWindowing(OracleAnalyticWindowing windowing) {
-        this.windowing = windowing;
+    public void setWindowing(OracleAnalyticWindowing x) {
+        if (x != null) {
+            x.setParent(this);
+        }
+        this.windowing = x;
+    }
+
+    public SQLDataType computeDataType() {
+        return null;
+    }
+
+    @Override
+    public boolean replace(SQLExpr expr, SQLExpr target) {
+
+        for (int i = 0; i < partitionBy.size(); i++) {
+            if (partitionBy.get(i) == expr) {
+                partitionBy.set(i, target);
+                return true;
+            }
+        }
+
+        return false;
     }
 }

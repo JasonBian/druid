@@ -15,10 +15,22 @@
  */
 package com.alibaba.druid.sql.ast;
 
-public interface SQLStatement extends SQLObject {
-    String getDbType();
+import com.alibaba.druid.DbType;
+import com.alibaba.druid.sql.visitor.VisitorFeature;
 
-    boolean isAfterSemi();
+import java.util.List;
 
-    void setAfterSemi(boolean afterSemi);
+public interface SQLStatement extends SQLObject, SQLDbTypedObject {
+    DbType       getDbType();
+    boolean      isAfterSemi();
+    void         setAfterSemi(boolean afterSemi);
+    SQLStatement clone();
+    List<SQLObject> getChildren();
+    List<SQLCommentHint> getHeadHintsDirect();
+    void setHeadHints(List<SQLCommentHint> headHints);
+
+    String toString();
+    String toString(VisitorFeature... features);
+    String toLowerCaseString();
+    String toParameterizedString();
 }

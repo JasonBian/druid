@@ -15,6 +15,7 @@
  */
 package com.alibaba.druid.bvt.sql.postgresql.select;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.PGTest;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
@@ -25,7 +26,7 @@ import org.junit.Assert;
 import java.util.List;
 
 public class PGSelectTest46 extends PGTest {
-    private String dbType = JdbcConstants.POSTGRESQL;
+    private DbType dbType = JdbcConstants.POSTGRESQL;
 
     public void test_0() throws Exception {
         String sql = "SELECT count(1) FROM t_user WHERE property ?& 'name'";
@@ -33,7 +34,7 @@ public class PGSelectTest46 extends PGTest {
         List<SQLStatement> statementList = SQLUtils.parseStatements(sql, dbType);
         SQLStatement stmt = statementList.get(0);
 
-        Assert.assertEquals("SELECT COUNT(1)\n" +
+        Assert.assertEquals("SELECT count(1)\n" +
                 "FROM t_user\n" +
                 "WHERE property ?& 'name'", SQLUtils.toPGString(stmt));
         

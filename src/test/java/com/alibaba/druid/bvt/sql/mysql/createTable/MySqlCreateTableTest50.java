@@ -15,14 +15,13 @@
  */
 package com.alibaba.druid.bvt.sql.mysql.createTable;
 
-import org.junit.Assert;
-
 import com.alibaba.druid.sql.MysqlTest;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.stat.TableStat;
+import org.junit.Assert;
 
 public class MySqlCreateTableTest50 extends MysqlTest {
 
@@ -53,7 +52,7 @@ public class MySqlCreateTableTest50 extends MysqlTest {
         Assert.assertEquals("CREATE TABLE `test`.`a` (" //
                             + "\n\t`ida` INT NOT NULL COMMENT 'aaa',"//
                             + "\n\tPRIMARY KEY (`ida`)"//
-                            + "\n) COMMENT = 'bb'",//
+                            + "\n) COMMENT 'bb'",//
                             output);
 
     }

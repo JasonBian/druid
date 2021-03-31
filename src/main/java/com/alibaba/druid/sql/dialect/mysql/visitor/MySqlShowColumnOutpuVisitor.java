@@ -18,11 +18,9 @@ package com.alibaba.druid.sql.dialect.mysql.visitor;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
-import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
 import com.alibaba.druid.sql.ast.statement.SQLTableElement;
 import com.alibaba.druid.sql.dialect.mysql.ast.MySqlUnique;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlCreateTableStatement;
-import com.alibaba.druid.sql.visitor.SQLASTOutputVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +38,7 @@ public class MySqlShowColumnOutpuVisitor extends MySqlOutputVisitor {
         List<String> dataTypes = new ArrayList<String>();
         List<String> defaultValues = new ArrayList<String>();
 
-        int name_len = -1, dataType_len = -1, defaultVal_len = -1, extra_len = 5;
+        int name_len = -1, dataType_len = -1, defaultVal_len = 7, extra_len = 5;
         for (SQLTableElement element : x.getTableElementList()) {
             if (element instanceof SQLColumnDefinition) {
                 SQLColumnDefinition column = (SQLColumnDefinition) element;
@@ -133,9 +131,9 @@ public class MySqlShowColumnOutpuVisitor extends MySqlOutputVisitor {
             print(" | ");
 
             if (column.containsNotNullConstaint()) {
-                print("YES");
-            } else {
                 print("NO ");
+            } else {
+                print("YES");
             }
             print("  | ");
 

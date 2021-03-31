@@ -17,8 +17,12 @@ package com.alibaba.druid.sql.dialect.oracle.ast.stmt;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLName;
+import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleASTVisitor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class OracleLockTableStatement extends OracleStatementImpl {
 
@@ -26,6 +30,7 @@ public class OracleLockTableStatement extends OracleStatementImpl {
     private LockMode lockMode;
     private boolean  noWait = false;
     private SQLExpr  wait;
+    private SQLExpr  partition;
 
     public boolean isNoWait() {
         return noWait;
@@ -67,13 +72,36 @@ public class OracleLockTableStatement extends OracleStatementImpl {
         this.lockMode = lockMode;
     }
 
+    public SQLExpr getPartition() {
+        return partition;
+    }
+
+    public void setPartition(SQLExpr partition) {
+        this.partition = partition;
+    }
+
     @Override
     public void accept0(OracleASTVisitor visitor) {
         if (visitor.visit(this)) {
             acceptChild(visitor, table);
+            acceptChild(visitor, partition);
             acceptChild(visitor, wait);
         }
         visitor.endVisit(this);
+    }
+
+    public List<SQLObject> getChildren() {
+        List<SQLObject> children = new ArrayList<SQLObject>();
+        if (table != null) {
+            children.add(table);
+        }
+        if (wait != null) {
+            children.add(wait);
+        }
+        if (partition != null) {
+            children.add(partition);
+        }
+        return children;
     }
 
     public static enum LockMode {

@@ -15,6 +15,7 @@
  */
 package com.alibaba.druid.bvt.sql.postgresql.select;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
@@ -24,7 +25,7 @@ import junit.framework.TestCase;
 import java.util.List;
 
 public class PGSelectTest53 extends TestCase {
-    private final String dbType = JdbcConstants.POSTGRESQL;
+    private final DbType dbType = JdbcConstants.POSTGRESQL;
 
     public void test_0() throws Exception {
         String sql = "select * from t where gmt = #{time}::timestamp with time zone";

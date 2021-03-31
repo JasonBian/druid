@@ -16,11 +16,24 @@
 package com.alibaba.druid.sql.dialect.postgresql.ast.expr;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLObject;
+import com.alibaba.druid.sql.ast.SQLReplaceable;
 import com.alibaba.druid.sql.dialect.postgresql.visitor.PGASTVisitor;
 
-public class PGBoxExpr extends PGExprImpl {
+import java.util.Collections;
+import java.util.List;
+
+public class PGBoxExpr extends PGExprImpl implements SQLReplaceable {
 
     private SQLExpr value;
+
+    public PGBoxExpr clone() {
+        PGBoxExpr x = new PGBoxExpr();
+        if (value != null) {
+            x.setValue(value.clone());
+        }
+        return x;
+    }
 
     public SQLExpr getValue() {
         return value;
@@ -36,6 +49,20 @@ public class PGBoxExpr extends PGExprImpl {
             acceptChild(visitor, value);
         }
         visitor.endVisit(this);
+    }
+
+    @Override
+    public boolean replace(SQLExpr expr, SQLExpr target) {
+        if (this.value == expr) {
+            setValue(target);
+            return true;
+        }
+
+        return false;
+    }
+
+    public List<SQLObject> getChildren() {
+        return Collections.<SQLObject>singletonList(value);
     }
 
     @Override

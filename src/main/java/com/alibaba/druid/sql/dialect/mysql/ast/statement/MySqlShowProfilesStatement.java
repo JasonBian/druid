@@ -22,5 +22,6 @@ public class MySqlShowProfilesStatement extends MySqlStatementImpl implements My
     public void accept0(MySqlASTVisitor visitor) {
         visitor.visit(this);
         visitor.endVisit(this);
+
     }
 }

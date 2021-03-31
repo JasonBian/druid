@@ -15,12 +15,21 @@
  */
 package com.alibaba.druid.sql.visitor;
 
+import com.alibaba.druid.DbType;
+
+import java.util.List;
+
 public interface ParameterizedVisitor extends PrintableVisitor {
 
     int getReplaceCount();
 
     void incrementReplaceCunt();
 
-    String getDbType();
+    DbType getDbType();
 
+    void setOutputParameters(List<Object> parameters);
+
+    void config(VisitorFeature feature, boolean state);
+
+    boolean isEnabled(VisitorFeature feature);
 }

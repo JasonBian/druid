@@ -28,7 +28,7 @@ public class MySqlSelectTest_34 extends MysqlTest {
 
     public void test_0() throws Exception {
         String sql = "select *\n" +
-                "from table\n" +
+                "from table1\n" +
                 "where level between 10-5 and 10+5\n" +
                 "order by -ABS(10 - level) desc\n" +
                 "limit 0,100";
@@ -57,7 +57,7 @@ public class MySqlSelectTest_34 extends MysqlTest {
         {
             String output = SQLUtils.toMySqlString(stmt);
             Assert.assertEquals("SELECT *\n" +
-                            "FROM table\n" +
+                            "FROM table1\n" +
                             "WHERE level BETWEEN 10 - 5 AND 10 + 5\n" +
                             "ORDER BY -ABS(10 - level) DESC\n" +
                             "LIMIT 0, 100", //
@@ -66,7 +66,7 @@ public class MySqlSelectTest_34 extends MysqlTest {
         {
             String output = SQLUtils.toMySqlString(stmt, SQLUtils.DEFAULT_LCASE_FORMAT_OPTION);
             Assert.assertEquals("select *\n" +
-                            "from table\n" +
+                            "from table1\n" +
                             "where level between 10 - 5 and 10 + 5\n" +
                             "order by -ABS(10 - level) desc\n" +
                             "limit 0, 100", //

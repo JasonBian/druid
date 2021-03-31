@@ -15,33 +15,34 @@
  */
 package com.alibaba.druid.sql.builder;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.builder.impl.SQLDeleteBuilderImpl;
 import com.alibaba.druid.sql.builder.impl.SQLSelectBuilderImpl;
 import com.alibaba.druid.sql.builder.impl.SQLUpdateBuilderImpl;
 
 public class SQLBuilderFactory {
 
-    public static SQLSelectBuilder createSelectSQLBuilder(String dbType) {
+    public static SQLSelectBuilder createSelectSQLBuilder(DbType dbType) {
         return new SQLSelectBuilderImpl(dbType);
     }
     
-    public static SQLSelectBuilder createSelectSQLBuilder(String sql, String dbType) {
+    public static SQLSelectBuilder createSelectSQLBuilder(String sql, DbType dbType) {
         return new SQLSelectBuilderImpl(sql, dbType);
     }
 
-    public static SQLDeleteBuilder createDeleteBuilder(String dbType) {
+    public static SQLDeleteBuilder createDeleteBuilder(DbType dbType) {
         return new SQLDeleteBuilderImpl(dbType);
     }
     
-    public static SQLDeleteBuilder createDeleteBuilder(String sql, String dbType) {
+    public static SQLDeleteBuilder createDeleteBuilder(String sql, DbType dbType) {
         return new SQLDeleteBuilderImpl(sql, dbType);
     }
 
-    public static SQLUpdateBuilder createUpdateBuilder(String dbType) {
+    public static SQLUpdateBuilder createUpdateBuilder(DbType dbType) {
         return new SQLUpdateBuilderImpl(dbType);
     }
     
-    public static SQLUpdateBuilder createUpdateBuilder(String sql, String dbType) {
+    public static SQLUpdateBuilder createUpdateBuilder(String sql, DbType dbType) {
         return new SQLUpdateBuilderImpl(sql, dbType);
     }
 }

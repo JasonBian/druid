@@ -15,6 +15,7 @@
  */
 package com.alibaba.druid.bvt.sql.postgresql.select;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
@@ -24,7 +25,7 @@ import junit.framework.TestCase;
 import java.util.List;
 
 public class PGSelectTest54 extends TestCase {
-    private final String dbType = JdbcConstants.POSTGRESQL;
+    private final DbType dbType = JdbcConstants.POSTGRESQL;
 
     public void test_0() throws Exception {
         String sql = "select gid, kind, mapid, poi_id, telephone, admincode, x, y, zipcode, name, address, street, number,geom from public.v_poi order by public.v_poi.geom <-> st_point(?,?) limit 1";
@@ -51,8 +52,8 @@ public class PGSelectTest54 extends TestCase {
         SchemaStatVisitor visitor = SQLUtils.createSchemaStatVisitor(dbType);
         stmt.accept(visitor);
 
-//        System.out.println("Tables : " + visitor.getTables());
-//        System.out.println("fields : " + visitor.getColumns());
+        System.out.println("Tables : " + visitor.getTables());
+        System.out.println("fields : " + visitor.getColumns());
 //        System.out.println("coditions : " + visitor.getConditions());
 
         assertEquals(14, visitor.getColumns().size());

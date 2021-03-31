@@ -23,6 +23,25 @@ public class SQLAlterTableDropConstraint extends SQLObjectImpl implements SQLAlt
 
     private SQLName constraintName;
 
+    protected boolean cascade = false;
+    protected boolean restrict = false;
+
+    public boolean isCascade() {
+        return cascade;
+    }
+
+    public void setCascade(boolean cascade) {
+        this.cascade = cascade;
+    }
+
+    public boolean isRestrict() {
+        return restrict;
+    }
+
+    public void setRestrict(boolean restrict) {
+        this.restrict = restrict;
+    }
+
     @Override
     protected void accept0(SQLASTVisitor visitor) {
         if (visitor.visit(this)) {

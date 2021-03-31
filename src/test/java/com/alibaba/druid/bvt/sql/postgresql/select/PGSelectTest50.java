@@ -15,6 +15,7 @@
  */
 package com.alibaba.druid.bvt.sql.postgresql.select;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.visitor.SchemaStatVisitor;
@@ -24,7 +25,7 @@ import junit.framework.TestCase;
 import java.util.List;
 
 public class PGSelectTest50 extends TestCase {
-    private final String dbType = JdbcConstants.POSTGRESQL;
+    private final DbType dbType = JdbcConstants.POSTGRESQL;
 
     public void test_0() throws Exception {
         String sql = "delete from itsm_system_role_menu where menu_id in(\n" +
@@ -77,11 +78,15 @@ public class PGSelectTest50 extends TestCase {
         SchemaStatVisitor visitor = SQLUtils.createSchemaStatVisitor(dbType);
         stmt.accept(visitor);
 
-//        System.out.println("Tables : " + visitor.getTables());
-//        System.out.println("fields : " + visitor.getColumns());
+        System.out.println("Tables : " + visitor.getTables());
+        System.out.println("fields : " + visitor.getColumns());
 //        System.out.println("coditions : " + visitor.getConditions());
 
-        assertEquals(4, visitor.getColumns().size());
+        assertEquals(3, visitor.getColumns().size());
         assertEquals(2, visitor.getTables().size());
+
+        assertTrue(visitor.containsColumn("itsm_system_role_menu", "menu_id"));
+        assertTrue(visitor.containsColumn("itsm_system_menu", "menu_id"));
+        assertTrue(visitor.containsColumn("itsm_system_menu", "parent_id"));
     }
 }

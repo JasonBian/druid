@@ -15,16 +15,15 @@
  */
 package com.alibaba.druid.bvt.sql.oracle.create;
 
-import java.util.List;
-
-import org.junit.Assert;
-
 import com.alibaba.druid.sql.OracleTest;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.oracle.parser.OracleStatementParser;
 import com.alibaba.druid.sql.dialect.oracle.visitor.OracleSchemaStatVisitor;
 import com.alibaba.druid.util.JdbcConstants;
+import org.junit.Assert;
+
+import java.util.List;
 
 public class OracleCreateTriggerTest extends OracleTest {
 
@@ -64,7 +63,7 @@ public class OracleCreateTriggerTest extends OracleTest {
         System.out.println("relationships : " + visitor.getRelationships());
         System.out.println("orderBy : " + visitor.getOrderByColumns());
 
-        Assert.assertEquals(0, visitor.getTables().size());
+        Assert.assertEquals(1, visitor.getTables().size());
 
         // Assert.assertTrue(visitor.getTables().containsKey(new TableStat.Name("cdc.en_complaint_ipr_stat_fdt0")));
 

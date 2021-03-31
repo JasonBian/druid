@@ -15,9 +15,7 @@
  */
 package com.alibaba.druid.sql.dialect.odps.ast;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLHint;
@@ -29,69 +27,23 @@ import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.odps.visitor.OdpsASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
 
+import java.util.ArrayList;
+
 public class OdpsSelectQueryBlock extends SQLSelectQueryBlock {
 
-    private SQLOrderBy orderBy;
-
-    protected List<SQLHint> hints;
-
-    protected List<SQLExpr>              distributeBy = new ArrayList<SQLExpr>();
-    protected List<SQLSelectOrderByItem> sortBy = new ArrayList<SQLSelectOrderByItem>(2);
 
     public OdpsSelectQueryBlock(){
+        dbType = DbType.odps;
 
+        clusterBy = new ArrayList<SQLSelectOrderByItem>();
+        distributeBy = new ArrayList<SQLSelectOrderByItem>();
+        sortBy = new ArrayList<SQLSelectOrderByItem>(2);
     }
 
-    public SQLOrderBy getOrderBy() {
-        return orderBy;
-    }
-
-    public void setOrderBy(SQLOrderBy orderBy) {
-        this.orderBy = orderBy;
-    }
-
-    public List<SQLExpr> getDistributeBy() {
-        return distributeBy;
-    }
-
-    public List<SQLSelectOrderByItem> getSortBy() {
-        return sortBy;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((limit == null) ? 0 : limit.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!super.equals(obj)) {
-            return false;
-        }
-
-        OdpsSelectQueryBlock other = (OdpsSelectQueryBlock) obj;
-        if (limit == null) {
-            if (other.limit != null) return false;
-        } else if (!limit.equals(other.limit)) return false;
-        return true;
-    }
-
-    public List<SQLHint> getHintsDirect() {
-        return hints;
-    }
-
-    public List<SQLHint> getHints() {
-        if (hints == null) {
-            hints = new ArrayList<SQLHint>(2);
-        }
-        return hints;
-    }
-
-    public void setHints(List<SQLHint> hints) {
-        this.hints = hints;
+    public OdpsSelectQueryBlock clone() {
+        OdpsSelectQueryBlock x = new OdpsSelectQueryBlock();
+        cloneTo(x);
+        return x;
     }
 
     @Override
@@ -112,6 +64,7 @@ public class OdpsSelectQueryBlock extends SQLSelectQueryBlock {
             acceptChild(visitor, this.where);
             acceptChild(visitor, this.groupBy);
             acceptChild(visitor, this.orderBy);
+            acceptChild(visitor, this.clusterBy);
             acceptChild(visitor, this.distributeBy);
             acceptChild(visitor, this.sortBy);
             acceptChild(visitor, this.limit);

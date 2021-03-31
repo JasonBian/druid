@@ -15,14 +15,16 @@
  */
 package com.alibaba.druid.sql.ast.statement;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLName;
+import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.SQLStatementImpl;
 import com.alibaba.druid.sql.ast.expr.SQLVariantRefExpr;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SQLCallStatement extends SQLStatementImpl {
 
@@ -38,7 +40,7 @@ public class SQLCallStatement extends SQLStatementImpl {
         
     }
     
-    public SQLCallStatement(String dbType) {
+    public SQLCallStatement(DbType dbType) {
         super (dbType);
     }
 
@@ -79,4 +81,12 @@ public class SQLCallStatement extends SQLStatementImpl {
         visitor.endVisit(this);
     }
 
+    @Override
+    public List<SQLObject> getChildren() {
+        List<SQLObject> children = new ArrayList<SQLObject>();
+        children.add(outParameter);
+        children.add(procedureName);
+        children.addAll(parameters);
+        return null;
+    }
 }

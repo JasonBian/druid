@@ -15,12 +15,10 @@
  */
 package com.alibaba.druid.sql.dialect.phoenix.ast;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLStatementImpl;
-import com.alibaba.druid.sql.dialect.db2.ast.DB2Object;
-import com.alibaba.druid.sql.dialect.db2.visitor.DB2ASTVisitor;
 import com.alibaba.druid.sql.dialect.phoenix.visitor.PhoenixASTVisitor;
 import com.alibaba.druid.sql.visitor.SQLASTVisitor;
-import com.alibaba.druid.util.JdbcConstants;
 
 /**
  * Created by wenshao on 16/9/14.
@@ -28,7 +26,7 @@ import com.alibaba.druid.util.JdbcConstants;
 public abstract class PhoenixStatementImpl extends SQLStatementImpl implements PhoenixObject {
 
     public PhoenixStatementImpl() {
-        super(JdbcConstants.PHOENIX);
+        super(DbType.phoenix);
     }
 
     @Override

@@ -15,18 +15,16 @@
  */
 package com.alibaba.druid.bvt.sql.oracle.select;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.OracleTest;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
-import com.alibaba.druid.sql.dialect.oracle.parser.OracleStatementParser;
-import com.alibaba.druid.sql.dialect.oracle.visitor.OracleSchemaStatVisitor;
 import com.alibaba.druid.util.JdbcConstants;
-import org.junit.Assert;
 
 import java.util.List;
 
 public class OracleSelectTest_param extends OracleTest {
-    private String dbType = JdbcConstants.ORACLE;
+    private DbType dbType = JdbcConstants.ORACLE;
 
     public void test_0() throws Exception {
         String sql = //
@@ -46,6 +44,6 @@ public class OracleSelectTest_param extends OracleTest {
         assertEquals("SELECT c1\n" +
                 "FROM t1 t\n" +
                 "WHERE t.c2 = ?\n" +
-                "\tAND t.c3 = ?", SQLUtils.toSQLString(stmt, dbType, new SQLUtils.FormatOption(true, true, true)));
+                "\tAND (t.c3 = ?)", SQLUtils.toSQLString(stmt, dbType, new SQLUtils.FormatOption(true, true, true)));
     }
 }

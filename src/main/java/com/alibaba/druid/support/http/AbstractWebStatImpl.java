@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group Holding Ltd.
+ * Copyright 1999-2018 Alibaba Group Holding Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,6 +90,7 @@ public class AbstractWebStatImpl {
 
         WebSessionStat sessionStat = null;
         String sessionId = getSessionId(request);
+
         if (sessionId != null) {
             sessionStat = webAppStat.getSessionStat(sessionId, true);
         }
@@ -139,6 +140,25 @@ public class AbstractWebStatImpl {
         HttpSession session = httpRequest.getSession(createSession);
         if (session != null) {
             sessionId = session.getId();
+        } else {
+            Cookie[] cookies = httpRequest.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals("JSESSIONID")) {
+                        sessionId = cookie.getValue();
+                        break;
+                    }
+                }
+
+                if (sessionId == null) {
+                    for (Cookie cookie : cookies) {
+                        if (cookie.getName().equals("JWT-SESSION")) {
+                            sessionId = cookie.getValue();
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         return sessionId;
